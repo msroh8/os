@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Control Fundamentals - Question Bank</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&family=Segoe+UI:wght@400;600;700&display=swap');
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #d7dcd7;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        /* Lined Notebook Style */
+        .notebook {
+            background-color: #fdfdfd;
+            max-width: 900px;
+            margin: 0 auto;
+            min-height: 80vh;
+            border-radius: 5px 15px 15px 5px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+            padding: 40px 40px 40px 80px;
+            /* Notebook lines */
+            background-image: repeating-linear-gradient(transparent, transparent 31px, #7baacb 31px, #7baacb 32px);
+            line-height: 32px;
+        }
+
+        /* Red margin line */
+        .notebook::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 55px;
+            width: 2px;
+            background: #e47d7d;
+        }
+
+        /* Tabs Styling */
+        .tabs-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            direction: rtl; /* UI in Arabic */
+        }
+
+        .tab-btn {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #fff;
+            border: 2px solid #5c83a1;
+            color: #5c83a1;
+            padding: 10px 25px;
+            font-size: 18px;
+            font-weight: 700;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            line-height: 1.2;
+        }
+
+        .tab-btn.active {
+            background-color: #5c83a1;
+            color: #fff;
+        }
+
+        .tab-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0,0,0,0.15);
+        }
+
+        .tab-content {
+            display: none;
+            background-color: transparent;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Content Styling */
+        h1, h2, h3 {
+            margin-top: 0;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: inline-block;
+            line-height: 1.4;
+            padding: 0 10px;
+            border-radius: 4px;
+        }
+
+        .topic-header {
+            color: #2c3e50;
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 5px;
+            margin-top: 40px;
+            display: block;
+            background-color: transparent;
+        }
+
+        .question-block {
+            margin-bottom: 30px;
+            background-color: rgba(255, 255, 255, 0.6);
+            padding: 10px;
+            border-radius: 5px;
+            line-height: 1.6;
+        }
+
+        .question-text {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .options-list {
+            list-style-type: none;
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+
+        .options-list li {
+            margin-bottom: 5px;
+        }
+
+        .actions {
+            margin-top: 15px;
+            direction: rtl; /* Action buttons in Arabic */
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            font-family: 'Tajawal', sans-serif;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: opacity 0.2s;
+            line-height: 1.2;
+        }
+
+        .btn:hover {
+            opacity: 0.8;
+        }
+
+        .btn-check {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .btn-ref {
+            background-color: #f39c12;
+            color: white;
+        }
+
+        .answer-block {
+            display: none;
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+            border-radius: 4px;
+            font-weight: 600;
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+
+        /* Topics Table (Tab 1 & Tables inside answers) */
+        .topics-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: rgba(255, 255, 255, 0.9);
+            margin-top: 20px;
+            line-height: 1.5;
+        }
+        .topics-table th, .topics-table td {
+            border: 1px solid #7baacb;
+            padding: 10px;
+            text-align: left;
+        }
+        .topics-table th {
+            background-color: #5c83a1;
+            color: white;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 10px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.6;
+        }
+
+        .modal-header {
+            background-color: #f39c12;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            direction: rtl;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            background: transparent;
+            padding: 0;
+            font-size: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 20px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .verbatim-quote {
+            background-color: #f8f9fa;
+            border-left: 4px solid #6c757d;
+            padding: 15px;
+            font-style: italic;
+            color: #333;
+            margin-bottom: 20px;
+            direction: ltr;
+        }
+
+        .arabic-explanation {
+            direction: rtl;
+            text-align: right;
+            font-family: 'Tajawal', sans-serif;
+            background-color: #e8f4fd;
+            border-right: 4px solid #3498db;
+            padding: 15px;
+            color: #2980b9;
+        }
+
+        .arabic-explanation strong {
+            display: block;
+            margin-bottom: 8px;
+            color: #1a5276;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="notebook">
+        <!-- Tabs -->
+        <div class="tabs-container">
+            <button class="tab-btn active" onclick="switchTab('tab-topics', this)">جدول الموضوعات</button>
+            <button class="tab-btn" onclick="switchTab('tab-questions', this)">الأسئلة</button>
+        </div>
+
+        <!-- Tab 1: Table of Topics -->
+        <div id="tab-topics" class="tab-content active">
+            <h2>Table of Topics</h2>
+            <table class="topics-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Topic</th>
+                    </tr>
+                </thead>
+                <tbody id="topics-tbody">
+                    <!-- Topics will be injected here via JS -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Tab 2: Questions -->
+        <div id="tab-questions" class="tab-content">
+            <div id="questions-container">
+                <!-- Questions will be injected here via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Reference -->
+    <div class="modal-overlay" id="ref-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>المرجع (Reference)</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="verbatim-quote" id="modal-quote"></div>
+                <div class="arabic-explanation" id="modal-explanation"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const topicsList = [
+            "1,Definition of Access Enforcement Mechanism and the OS's role",
+            "2,Elements of access control: Subjects, Operations, Objects",
+            "3,Definition of Protection System",
+            "4,Definition of Protection State and its components",
+            "5,Protection State Operations and their purpose (e.g., adding new Subjects/Objects)",
+            "6,The most complete description of a system via a function on (subject, object)",
+            "7,Concept of the Access Matrix as a representation of the Protection State",
+            "8,Lampson's Access Matrix definition (S, O, OP)",
+            "9,The function ops(s, o) and its relation to matrix cells",
+            "10,Two-dimensional structure of the access matrix (Subjects as rows, Objects as columns)",
+            "11,Practical example of matrix cell content (Process 1 / File 2)",
+            "12,Full matrix representation (Users × Files)",
+            "13,Need for Protection State Operations when new files/processes are created",
+            "14,Example of create_file(process, file) and its effect on the matrix",
+            "15,Definition of a Process's Protection Domain",
+            "16,Examining matrix rows to determine a subject's authorized operations",
+            "17,Relation of Protection Domain to security goals (Secrecy and Integrity)",
+            "18,Sparsity of the access matrix in practice",
+            "19,Alternative representations: Access Control Lists (ACL) and Capability Lists (C-List)",
+            "20,How ACL works: storage by resource, reliance on authentication",
+            "21,How C-List works: storage by subject",
+            "22,Advantages of ACL (easy to see who can access a resource, intuitive administration)",
+            "23,Advantages of C-List (easy to identify a process's protection domain)",
+            "24,General comparison between ACL and Capabilities (advantages/disadvantages of each)"
+        ];
+
+        const quizData = [
+            {
+                topic: "Topic 1: Definition of Access Enforcement Mechanism and the OS's role",
+                questions: [
+                    {
+                        type: "Question 1 (Multiple Choice)",
+                        text: "What does an access enforcement mechanism authorize, according to the lecture?",
+                        options: ["A. Only network connections from external hosts", "B. Requests (e.g., system calls) from multiple subjects to perform operations on objects", "C. Only password changes by administrators", "D. Backup and archive schedules"],
+                        answer: "Answer: B. Requests (e.g., system calls) from multiple subjects to perform operations on objects",
+                        quote: "Slide 3:\n“An access enforcement mechanism authorizes requests (e.g., system calls) from multiple subjects (e.g., users, processes, etc.) to perform operations (e.g., read, write, etc.) on objects (e.g., files, sockets, etc.).”",
+                        explanation: "آلية التحكم في الوصول تصرح للطلبات (مثل نداءات النظام) من كيانات مختلفة (مستخدمين/عمليات) لإجراء عمليات (قراءة/كتابة) على الموارد (ملفات/منافذ)."
+                    },
+                    {
+                        type: "Question 2 (True / False)",
+                        text: "True or False: The operating system provides an access enforcement mechanism.",
+                        options: [],
+                        answer: "Answer: True.",
+                        quote: "Slide 3:\n“Operating system provides an access enforcement mechanism.”",
+                        explanation: "نظام التشغيل هو المسؤول الأساسي عن توفير وتطبيق آلية التحكم في الوصول."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 2: Elements of access control: Subjects, Operations, Objects",
+                questions: [
+                    {
+                        type: "Question 3 (Short Answer)",
+                        text: "How is a system access traditionally stated, according to the lecture?",
+                        options: [],
+                        answer: "Answer: A system access is traditionally stated in terms of which subjects (e.g., processes and users) can perform which operations (e.g., read and write) on which objects (e.g., files and sockets).",
+                        quote: "Slide 4:\n“A system access is traditionally stated in terms of which subjects (e.g., processes and users) can perform which operations (e.g., read and write) on which objects (e.g., files and sockets).”",
+                        explanation: "الوصول للنظام يُعرّف تقليدياً بتحديد 'من' (الكيانات مثل المستخدمين) يمكنه فعل 'ماذا' (العمليات مثل القراءة) على 'أي' مورد (الكائنات مثل الملفات)."
+                    },
+                    {
+                        type: "Question 4 (Multiple Choice)",
+                        text: "Which of the following are given as examples of 'objects' in the lecture?",
+                        options: ["A. Users and processes", "B. Files and sockets", "C. Read and write", "D. Subjects and operations"],
+                        answer: "Answer: B. Files and sockets",
+                        quote: "Slide 4:\n“on which objects (e.g., files and sockets).”",
+                        explanation: "الكائنات (Objects) في سياق التحكم في الوصول هي الموارد التي يقع عليها الفعل، مثل الملفات ومنافذ الشبكة (Sockets)."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 3: Definition of Protection System",
+                questions: [
+                    {
+                        type: "Question 5 (Short Answer)",
+                        text: "Where are the security requirements of an operating system defined, according to the lecture?",
+                        options: [],
+                        answer: "Answer: The security requirements of an operating system are defined in its protection system.",
+                        quote: "Slide 5:\n“The security requirements of an operating system are defined in its protection system.”",
+                        explanation: "متطلبات الأمان لأي نظام تشغيل يتم تعريفها وصياغتها من خلال ما يُسمى بـ 'نظام الحماية'."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 4: Definition of Protection State and its components",
+                questions: [
+                    {
+                        type: "Question 6 (Explain)",
+                        text: "Explain the definition of a Protection System and what a Protection State describes.",
+                        options: [],
+                        answer: "Answer: A protection system consists of a protection state, which describes the operations that system subjects can perform on system objects, and a set of protection state operations, which enable modification of that state.",
+                        quote: "Slide 5:\n“A protection system consists of a protection state, which describes the operations that system subjects can perform on system objects, and a set of protection state operations, which enable modification of that state.”",
+                        explanation: "نظام الحماية يتكون من شقين: 'حالة الحماية' التي تصف الصلاحيات الحالية، و 'عمليات حالة الحماية' التي تسمح بالتعديل على هذه الصلاحيات."
+                    },
+                    {
+                        type: "Question 7 (Short Answer)",
+                        text: "What three things does a Protection State consist of?",
+                        options: [],
+                        answer: "Answer: A protection state consists of the specific system subjects, the specific system objects, and the operations that those subjects can perform on those objects.",
+                        quote: "Slide 6:\n“A protection state consists of the specific system subjects, the specific system objects, and the operations that those subjects can perform on those objects.”",
+                        explanation: "تتكون 'حالة الحماية' من ثلاثة عناصر أساسية: الكيانات، الموارد، والعمليات المسموح بها لتلك الكيانات على تلك الموارد."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 5: Protection State Operations and their purpose (e.g., adding new Subjects/Objects)",
+                questions: [
+                    {
+                        type: "Question 8 (True / False)",
+                        text: "True or False: A protection system also defines protection state operations that enable a protection state to be modified.",
+                        options: [],
+                        answer: "Answer: True.",
+                        quote: "Slide 6:\n“A protection system also defines protection state operations that enable a protection state to be modified.”",
+                        explanation: "نظام الحماية لا يكتفي بوصف الحالة الحالية فحسب، بل يحدد أفعالاً (عمليات) تُمكن النظام من تعديل أو تحديث هذه الحالة."
+                    },
+                    {
+                        type: "Question 9 (Short Answer)",
+                        text: "Give an example of why protection state operations are necessary, as stated in the lecture.",
+                        options: [],
+                        answer: "Answer: Protection state operations are necessary to add new system subjects or new system objects to the protection state.",
+                        quote: "Slide 6:\n“protection state operations are necessary to add new system subjects or new system objects to the protection state.”",
+                        explanation: "نحتاج إلى عمليات تحديث حالة الحماية لكي نتمكن من إضافة مستخدمين جدد للنظام، أو إنشاء ملفات (موارد) جديدة تضاف إلى النظام."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 6: The most complete description of a system via a function on (subject, object)",
+                questions: [
+                    {
+                        type: "Question 10 (Explain)",
+                        text: "Explain how the most complete description of what is allowed within a computer system, at a given point in time, is provided.",
+                        options: [],
+                        answer: "Answer: The most complete description, at a given point in time, of what is allowed within a given computer system is given by a function which tells us, for a given subject and object, what the subject may do with the object.",
+                        quote: "Slide 7:\n“The most complete description, at given point in time, of what is allowed within a given computer system is given by a function which tells us, for a given subject and object, what the subject may do with the object.”",
+                        explanation: "الوصف الأكمل لصلاحيات النظام يتم عبر دالة رياضية تأخذ (مستخدم ومورد) كمدخلات، وتخبرنا بما هي العمليات التي يُسمح للمستخدم فعلها في هذا المورد."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 7: Concept of the Access Matrix as a representation of the Protection State",
+                questions: [
+                    {
+                        type: "Question 11 (Multiple Choice)",
+                        text: "What is the best way to represent the function describing subject-object permissions, according to the lecture?",
+                        options: ["A. A linked list", "B. A matrix called an access matrix", "C. A binary tree", "D. A hash table"],
+                        answer: "Answer: B. A matrix called an access matrix",
+                        quote: "Slide 7:\n“The best way to represent this function is by means of a matrix called an access matrix.”",
+                        explanation: "أفضل وأشهر طريقة لتمثيل هذه الدالة بشكل مرئي ومفهوم هي استخدام جدول ثنائي الأبعاد يُسمى بـ 'مصفوفة الوصول' (Access Matrix)."
+                    },
+                    {
+                        type: "Question 33 (Multiple Choice)",
+                        text: "What does a protection state describe, according to the lecture's definition of a Protection System?",
+                        options: ["A. The operations that system subjects can perform on system objects", "B. The list of all installed applications", "C. The network topology of the organization", "D. The backup retention schedule"],
+                        answer: "Answer: A. The operations that system subjects can perform on system objects",
+                        quote: "Slide 5:\n“A protection system consists of a protection state, which describes the operations that system subjects can perform on system objects”",
+                        explanation: "ببساطة، حالة الحماية تختص بوصف (العمليات المسموحة) للكيانات على الموارد داخل النظام."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 8: Lampson's Access Matrix definition (S, O, OP)",
+                questions: [
+                    {
+                        type: "Question 12 (Multiple Choice)",
+                        text: "According to Lampson's definition, an access matrix consists of which sets?",
+                        options: ["A. A set of subjects s ∈ S, a set of objects o ∈ O, a set of operations op ∈ OP", "B. A set of policies, a set of users, a set of passwords", "C. A set of firewalls, a set of IDS rules, a set of logs", "D. A set of roles, a set of groups, a set of locations"],
+                        answer: "Answer: A. A set of subjects s ∈ S, a set of objects o ∈ O, a set of operations op ∈ OP",
+                        quote: "Slide 8:\n“An access matrix consists of a set of subjects s ∈ S, a set of objects o ∈ O, a set of operations op ∈ OP.”",
+                        explanation: "مصفوفة الوصول حسب تعريف العالم (Lampson) تتكون من ثلاث مجموعات رياضية: مجموعة الكيانات (S)، الموارد (O)، والعمليات (OP)."
+                    },
+                    {
+                        type: "Question 34 (True / False)",
+                        text: "True or False: Lampson defined the idea that a protection state is represented by an access matrix.",
+                        options: [],
+                        answer: "Answer: True.",
+                        quote: "Slide 8:\n“Lampson defined the idea that a protection state is represented by an access matrix.”",
+                        explanation: "نعم، العالم باتلر لامبسون (Butler Lampson) هو من وضع فكرة تمثيل حالة الحماية باستخدام مصفوفة الوصول."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 9: The function ops(s, o) and its relation to matrix cells",
+                questions: [
+                    {
+                        type: "Question 13 (Short Answer)",
+                        text: "What does the function ops(s, o) determine, and what does it return?",
+                        options: [],
+                        answer: "Answer: function ops(s, o) ⊆ OP determines the operations that subject s can perform on object o. The function ops(s, o) is said to return a set of operations corresponding to cell (s, o).",
+                        quote: "Slide 8:\n“function ops(s, o) ⊆ OP, which determines the operations that subject s can perform on object o.”\n“The function ops(s, o) is said to return a set of operations corresponding to cell (s, o).”",
+                        explanation: "الدالة الرياضية تُرجع مجموعة العمليات المتاحة في (الخلية المتقاطعة) بين الكيان والمورد داخل المصفوفة."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 10: Two-dimensional structure of the access matrix (Subjects as rows, Objects as columns)",
+                questions: [
+                    {
+                        type: "Question 14 (True / False)",
+                        text: "True or False: In the access matrix, the set of subjects form one axis and the set of objects forms the other axis.",
+                        options: [],
+                        answer: "Answer: True.",
+                        quote: "Slide 9:\n“The matrix is a two-dimensional representation where the set of subjects form one axis and the set of objects forms the other axis.”",
+                        explanation: "مصفوفة الوصول جدول ثنائي الأبعاد، محور يمثل الصفوف (الكيانات) والمحور الآخر يمثل الأعمدة (الموارد)."
+                    },
+                    {
+                        type: "Question 15 (Short Answer)",
+                        text: "What do the cells of the access matrix store?",
+                        options: [],
+                        answer: "Answer: The cells of the access matrix store the operations that the corresponding subject can perform on the corresponding object.",
+                        quote: "Slide 9:\n“The cells of the access matrix store the operations that the corresponding subject can perform on the corresponding object.”",
+                        explanation: "الخلايا المتقاطعة داخل المصفوفة تخزن تحديداً 'العمليات' (مثل Read, Write) المسموح للكيان بها على ذلك المورد."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 11: Practical example of matrix cell content (Process 1 / File 2)",
+                questions: [
+                    {
+                        type: "Question 16 (Scenario)",
+                        text: "Scenario: In the example access matrix, the cell corresponding to subject 'Process 1' and object 'File 2' contains the operations Read and Write. What does this cell indicate about Process 1 and File 2, according to the lecture's example?",
+                        options: [],
+                        answer: "Answer: Subject Process 1 can perform read and write operations on object File 2.",
+                        quote: "Slide 9:\n“For example, subject Process 1 can perform read and write operations on object File 2.”",
+                        explanation: "إذا احتوت خلية تقاطع (العملية 1) مع (الملف 2) على قراءة وكتابة، فهذا يعني أن العملية يحق لها قراءة وتعديل هذا الملف فقط."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 12: Full matrix representation (Users × Files)",
+                questions: [
+                    {
+                        type: "Question 17 (Multiple Choice)",
+                        text: "In the matrix table example (Users × Files), what operation does 'User 3' have on 'File 1'?",
+                        options: ["A. read", "B. write", "C. read, write", "D. - (no access)"],
+                        answer: "Answer: D. - (no access)",
+                        quote: "Slide 10:\n“User 3 - - - read read”",
+                        explanation: "في مثال المحاضرة، وُجدت علامة (-) عند الخلية المتقاطعة بين المستخدم 3 والملف 1، مما يعني أنه لا يمتلك أي صلاحيات للوصول."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 13: Need for Protection State Operations when new files/processes are created",
+                questions: [
+                    {
+                        type: "Question 18 (Short Answer)",
+                        text: "If subjects correspond to processes and objects correspond to files, why do we need protection state operations?",
+                        options: [],
+                        answer: "Answer: We need protection state operations to update the protection state as new files and processes are created.",
+                        quote: "Slide 11:\n“If the subjects correspond to processes and the objects correspond to files, then we need protection state operations to update the protection state as new files and processes are created.”",
+                        explanation: "الأنظمة ديناميكية (يتم استحداث ملفات وبرامج باستمرار)، لذلك نحتاج لتحديث المصفوفة وإضافة صفوف وأعمدة جديدة بانتظام عبر ما يسمى بـ Protection state operations."
+                    },
+                    {
+                        type: "Question 32 (Scenario)",
+                        text: "Scenario: A new process P creates a new file F on the system. According to the lecture, what should happen regarding access to F, and which protection state operation would be used?",
+                        options: [],
+                        answer: "Answer: At least the creating process should gain access to the file. The protection state operation create_file(process, file) would add a new column for the new file and add read and write operations to the cell (process, file).",
+                        quote: "Slide 11:\n“For example, when a new file is created, at least the creating process should gain access to the file.”\n“Then a protection state operation create_file(process, file) would add a new column for the new file and add read and write operations to the cell (process, file).”",
+                        explanation: "تكرار للتأكيد: عند إنشاء الملف F، نقوم بإضافة عمود جديد للملف، ونعطي صلاحية القراءة والكتابة لمنشئ الملف P في خليتهما المتقاطعة."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 14: Example of create_file(process, file) and its effect on the matrix",
+                questions: [
+                    {
+                        type: "Question 19 (Explain)",
+                        text: "Explain what happens when the protection state operation create_file(process, file) is performed.",
+                        options: [],
+                        answer: "Answer: When a new file is created, at least the creating process should gain access to the file. The protection state operation create_file(process, file) would add a new column for the new file and add read and write operations to the cell (process, file).",
+                        quote: "Slide 11:\n“For example, when a new file is created, at least the creating process should gain access to the file.”\n“Then a protection state operation create_file(process, file) would add a new column for the new file and add read and write operations to the cell (process, file).”",
+                        explanation: "عملية (create_file) تُحدّث المصفوفة حرفياً بإضافة عمود للملف الجديد، وتضع صلاحية القراءة والكتابة لصالح البرنامج أو المستخدم الذي قام بإنشاء هذا الملف."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 15: Definition of a Process's Protection Domain",
+                questions: [
+                    {
+                        type: "Question 20 (Short Answer)",
+                        text: "Define a Protection Domain as stated in the lecture.",
+                        options: [],
+                        answer: "Answer: A protection domain specifies the set of resources (objects) that a process can access and the operations that the process may use to access such resources.",
+                        quote: "Slide 12:\n“A protection domain specifies the set of resources (objects) that a process can access and the operations that the process may use to access such resources.”",
+                        explanation: "نطاق الحماية (Protection Domain) يحدد بوضوح ما هي الموارد التي يُسمح لعملية معينة بالوصول إليها وما هي العمليات التي تستطيع فعلها عليها."
+                    },
+                    {
+                        type: "Question 21 (True / False)",
+                        text: "True or False: The access matrix is used to define the protection domain of a process.",
+                        options: [],
+                        answer: "Answer: True.",
+                        quote: "Slide 12:\n“The access matrix is used to define the protection domain of a process.”",
+                        explanation: "مصفوفة الوصول هي الأداة الرياضية والنظرية الرئيسية التي تستخدم لتعريف وتحديد نطاق الحماية لأي عملية."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 16: Examining matrix rows to determine a subject's authorized operations",
+                questions: [
+                    {
+                        type: "Question 22 (Explain)",
+                        text: "Explain what can be determined by examining the rows in the access matrix.",
+                        options: [],
+                        answer: "Answer: By examining the rows in the access matrix, one can see all the operations that a subject is authorized to perform on system resources. This determines what information could be read and modified by a process running on behalf of that subject.",
+                        quote: "Slide 13:\n“By examining the rows in the access matrix, one can see all the operations that a subject is authorized to perform on system resources.”\n“This determines what information could be read and modified by a processe running on behalf of that subject.”",
+                        explanation: "كل صف في المصفوفة يمثل (مستخدماً أو عملية)؛ بقراءة هذا الصف أفقياً نكتشف جميع الموارد والصلاحيات المتاحة له في كل النظام."
+                    },
+                    {
+                        type: "Question 35 (Scenario)",
+                        text: "Scenario: A security analyst wants to know everything a particular user (subject) is authorized to do across all system resources. According to the lecture, how would they find this in the access matrix, and why is this important?",
+                        options: [],
+                        answer: "Answer: By examining the rows in the access matrix, one can see all the operations that a subject is authorized to perform on system resources. This determines what information could be read and modified by a process running on behalf of that subject.",
+                        quote: "Slide 13:\n“By examining the rows in the access matrix, one can see all the operations that a subject is authorized to perform on system resources.”\n“This determines what information could be read and modified by a processe running on behalf of that subject.”",
+                        explanation: "تأكيداً للفكرة: المحلل الأمني يفحص (الصف) الخاص بالمستخدم ليرى جميع صلاحياته كصورة شاملة لنطاق حمايته."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 17: Relation of Protection Domain to security goals (Secrecy and Integrity)",
+                questions: [
+                    {
+                        type: "Question 23 (Multiple Choice)",
+                        text: "For a secure operating system, what should the protection domain of each process satisfy?",
+                        options: ["A. Speed and efficiency goals only", "B. System security goals (e.g., secrecy and integrity)", "C. Backup and archive policies", "D. Network bandwidth limits"],
+                        answer: "Answer: B. System security goals (e.g., secrecy and integrity)",
+                        quote: "Slide 13:\n“For a secure operating system, we will want to ensure that the protection domain of each process satisfies system security goals (e.g., secrecy and integrity).”",
+                        explanation: "نطاقات الحماية ليست عشوائية، بل يجب أن تُصمم بحيث تحقق أهداف الأمان الكبرى للنظام مثل الحفاظ على سرية البيانات (Secrecy) ونزاهتها (Integrity)."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 18: Sparsity of the access matrix in practice",
+                questions: [
+                    {
+                        type: "Question 24 (True / False)",
+                        text: "True or False: In practice, the access matrix is sparse, usually occupied mostly by empty permissions.",
+                        options: [],
+                        answer: "Answer: True.",
+                        quote: "Slide 14:\n“In practice, the access matrix is sparse (which is usually occupied mostly by empty permissions).”",
+                        explanation: "في الواقع العملي، تكون المصفوفة 'متناثرة' وشبه فارغة، لأن أغلب المستخدمين ليس لديهم صلاحيات للوصول إلى أغلب ملفات المستخدمين الآخرين."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 19: Alternative representations: Access Control Lists (ACL) and Capability Lists (C-List)",
+                questions: [
+                    {
+                        type: "Question 25 (Multiple Choice)",
+                        text: "Because the access matrix is sparse, what other representations are often used?",
+                        options: ["A. Kerberos and SESAME", "B. Access Control Lists (ACL) and Capability List (C-List)", "C. MAC and DAC only", "D. Single Sign-On (SSO) and Federated ID"],
+                        answer: "Answer: B. Access Control Lists (ACL) and Capability List (C-List)",
+                        quote: "Slide 15:\n“So, other representations are often used: Access Control Lists(ACL): for each object, list the subject and their access rights. Capability List (C-List): for each subject, list the object and the rights the subject has on that object.”",
+                        explanation: "لأن تخزين مصفوفة ضخمة فارغة يهدر الذاكرة، نلجأ إلى تقنيتين بديلتين هما قوائم التحكم (ACL) المربوطة بالموارد، وقوائم القدرات (C-List) المربوطة بالكيانات."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 20: How ACL works: storage by resource, reliance on authentication",
+                questions: [
+                    {
+                        type: "Question 26 (Short Answer)",
+                        text: "What does an Access Control List (ACL) describe, and what does checking it rely on?",
+                        options: [],
+                        answer: "Answer: ACL stores the column of the matrix with the resource, describing which subjects have access to a particular object. It involves checking the user/group against the list, and relies on authentication: need to know user.",
+                        quote: "Slide 16:\n“Store column of the matrix with the resource. Describing which subjects have access to a particular object. Check the user/group against the list. Relies on authentication: need to know user.”",
+                        explanation: "قائمة (ACL) تُخزن 'العمود' كاملاً مع الملف نفسه، لتُحدد من يحق له فتحه. وتعتمد بشدة على المصادقة للتأكد من هوية المستخدم قبل منحه الصلاحية."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 21: How C-List works: storage by subject",
+                questions: [
+                    {
+                        type: "Question 27 (Short Answer)",
+                        text: "What does a Capability (C-List) store, according to the lecture?",
+                        options: [],
+                        answer: "Answer: Capability (C-List) stores the other dimension of the access matrix, the subject rows. In this case, the objects that a particular subject can access are stored.",
+                        quote: "Slide 16:\n“Stores the other dimension of the access matrix, the subject rows. In this case, the objects that a particular subject can access are stored.”",
+                        explanation: "على العكس من ACL، قائمة (C-List) تُخزن 'الصف' كاملاً وترافق (المستخدم)، حيث تتضمن قائمة بكل الموارد التي يمكن لهذا المستخدم الوصول إليها (كأنها باجة مفاتيح)."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 22: Advantages of ACL (easy to see who can access a resource, intuitive administration)",
+                questions: [
+                    {
+                        type: "Question 28 (Explain)",
+                        text: "Explain the advantage of the ACL approach regarding telling which subjects can access an object.",
+                        options: [],
+                        answer: "Answer: For the ACL approach, the set of subjects and the operations that they can perform are stored with the objects, making it easy to tell which subjects can access an object at any time. Administration of permissions seems to be more intuitive.",
+                        quote: "Slide 17:\n“For the ACL approach, the set of subjects and the operations that they can perform are stored with the objects, making it easy to tell which subjects can access an object at any time. Administration of permissions seems to be more intuitive.”",
+                        explanation: "أكبر ميزة للـ ACL هي السهولة الفائقة في الإجابة على سؤال 'من لديه صلاحية على هذا الملف؟'، لأن القائمة مخزنة مع الملف، مما يجعل الإدارة بديهية ومباشرة."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 23: Advantages of C-List (easy to identify a process's protection domain)",
+                questions: [
+                    {
+                        type: "Question 29 (Short Answer)",
+                        text: "What advantage do C-Lists provide regarding a process's protection domain?",
+                        options: [],
+                        answer: "Answer: C-Lists store with the subjects the set of objects and operations that can be performed on them, making it easy to identify a process's protection domain.",
+                        quote: "Slide 18:\n“C-Lists store with the subjects the set of objects and operations that can be performed on them, making it easy to identify a process’s protection domain.”",
+                        explanation: "أكبر ميزة للـ C-List هي السهولة في الإجابة على سؤال 'ما هي الموارد التي يستطيع هذا المستخدم الوصول إليها؟' (أي تحديد نطاق الحماية الخاص به بوضوح)."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 24: General comparison between ACL and Capabilities (advantages/disadvantages of each)",
+                questions: [
+                    {
+                        type: "Question 30 (True / False)",
+                        text: "True or False: There are advantages and disadvantages to both the C-List and ACL representations of protection states.",
+                        options: [],
+                        answer: "Answer: True.",
+                        quote: "Slide 17:\n“There are advantages and disadvantages to both the C-List and ACL representations of protection states.”",
+                        explanation: "كل نظام من النظامين له نقاط قوة ونقاط ضعف؛ أحدهما يركز على المورد والآخر يركز على المستخدم."
+                    },
+                    {
+                        type: "Question 31 (Compare)",
+                        text: "Compare ACL and Capability List (C-List) based on how each stores access information and the main advantage of each, as given in the lecture.",
+                        options: [],
+                        answer: `Answer:<br><table class="topics-table" style="margin-top:10px"><tr><th>Aspect</th><th>ACL (Access Control List)</th><th>C-List (Capability List)</th></tr><tr><td>What is stored</td><td>For each object, the list of subjects and their access rights (column of the matrix with the resource).</td><td>For each subject, the list of objects and the rights the subject has on them (the subject rows).</td></tr><tr><td>Dependency</td><td>Relies on authentication: need to know user.</td><td>Stores the other dimension of the access matrix, the subject rows.</td></tr><tr><td>Main Advantage</td><td>Easy to tell which subjects can access an object at any time; administration of permissions seems more intuitive.</td><td>Easy to identify a process’s protection domain.</td></tr></table>`,
+                        quote: "Slides 16-18:\n“Store column of the matrix with the resource. Describing which subjects have access to a particular object. Check the user/group against the list. Relies on authentication: need to know user.”\n“Stores the other dimension of the access matrix, the subject rows. In this case, the objects that a particular subject can access are stored.”",
+                        explanation: "تُلخص المقارنة الفروق: ACL (أعمدة، مربوطة بالملف، للتحقق من هوية من يدخل)، أما C-List (صفوف، مربوطة بالمستخدم، تحدد قدراته داخل النظام)."
+                    }
+                ]
+            }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Render Topics Table
+            const tbody = document.getElementById('topics-tbody');
+            topicsList.forEach(item => {
+                const firstCommaIdx = item.indexOf(',');
+                const id = item.substring(0, firstCommaIdx);
+                const title = item.substring(firstCommaIdx + 1);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${id}</td><td>${title}</td>`;
+                tbody.appendChild(tr);
+            });
+
+            // Render Questions
+            const qContainer = document.getElementById('questions-container');
+            quizData.forEach((section, sIndex) => {
+                const topicHtml = `<h2 class="topic-header">${section.topic}</h2>`;
+                qContainer.insertAdjacentHTML('beforeend', topicHtml);
+
+                section.questions.forEach((q, qIndex) => {
+                    const blockId = `q-${sIndex}-${qIndex}`;
+                    let optionsHtml = '';
+                    if (q.options && q.options.length > 0) {
+                        optionsHtml = `<ul class="options-list">`;
+                        q.options.forEach(opt => {
+                            optionsHtml += `<li>${opt}</li>`;
+                        });
+                        optionsHtml += `</ul>`;
+                    }
+
+                    // Store stringified data for onclick inline JS
+                    const encodedQuote = encodeURIComponent(q.quote);
+                    const encodedExplanation = encodeURIComponent(q.explanation);
+
+                    const qHtml = `
+                        <div class="question-block">
+                            <div class="question-text">${q.type}<br>${q.text}</div>
+                            ${optionsHtml}
+                            
+                            <div class="actions">
+                                <button class="btn btn-check" onclick="toggleAnswer('${blockId}')">تحقق</button>
+                                <button class="btn btn-ref" onclick="openModal('${encodedQuote}', '${encodedExplanation}')">المرجع</button>
+                            </div>
+
+                            <div id="${blockId}-ans" class="answer-block">
+                                ${q.answer}
+                            </div>
+                        </div>
+                    `;
+                    qContainer.insertAdjacentHTML('beforeend', qHtml);
+                });
+            });
+        });
+
+        // Tab Switching Logic
+        function switchTab(tabId, btnElement) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            btnElement.classList.add('active');
+        }
+
+        // Toggle Answer Visibility
+        function toggleAnswer(blockId) {
+            const ansDiv = document.getElementById(`${blockId}-ans`);
+            if (ansDiv.style.display === 'block') {
+                ansDiv.style.display = 'none';
+            } else {
+                ansDiv.style.display = 'block';
+            }
+        }
+
+        // Modal Logic
+        const modal = document.getElementById('ref-modal');
+        const quoteEl = document.getElementById('modal-quote');
+        const expEl = document.getElementById('modal-explanation');
+
+        function openModal(encQuote, encExp) {
+            const quote = decodeURIComponent(encQuote);
+            const explanation = decodeURIComponent(encExp);
+            
+            // Format Quote with italics
+            quoteEl.innerHTML = `"${quote.replace(/\n/g, '<br>')}"`;
+            
+            // Add Arabic Explanation
+            expEl.innerHTML = `<strong>الشرح المبسط:</strong> ${explanation}`;
+            
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
