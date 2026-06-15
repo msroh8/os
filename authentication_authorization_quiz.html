@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication and Authorization - Question Bank</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&family=Segoe+UI:wght@400;600;700&display=swap');
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #d7dcd7;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        /* Lined Notebook Style */
+        .notebook {
+            background-color: #fdfdfd;
+            max-width: 900px;
+            margin: 0 auto;
+            min-height: 80vh;
+            border-radius: 5px 15px 15px 5px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+            padding: 40px 40px 40px 80px;
+            /* Notebook lines */
+            background-image: repeating-linear-gradient(transparent, transparent 31px, #7baacb 31px, #7baacb 32px);
+            line-height: 32px;
+        }
+
+        /* Red margin line */
+        .notebook::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 55px;
+            width: 2px;
+            background: #e47d7d;
+        }
+
+        /* Tabs Styling */
+        .tabs-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            direction: rtl; /* UI in Arabic */
+        }
+
+        .tab-btn {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #fff;
+            border: 2px solid #5c83a1;
+            color: #5c83a1;
+            padding: 10px 25px;
+            font-size: 18px;
+            font-weight: 700;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            line-height: 1.2;
+        }
+
+        .tab-btn.active {
+            background-color: #5c83a1;
+            color: #fff;
+        }
+
+        .tab-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0,0,0,0.15);
+        }
+
+        .tab-content {
+            display: none;
+            background-color: transparent;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Content Styling */
+        h1, h2, h3 {
+            margin-top: 0;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: inline-block;
+            line-height: 1.4;
+            padding: 0 10px;
+            border-radius: 4px;
+        }
+
+        .topic-header {
+            color: #2c3e50;
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 5px;
+            margin-top: 40px;
+            display: block;
+            background-color: transparent;
+        }
+
+        .question-block {
+            margin-bottom: 30px;
+            background-color: rgba(255, 255, 255, 0.6);
+            padding: 10px;
+            border-radius: 5px;
+            line-height: 1.6;
+        }
+
+        .question-text {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .options-list {
+            list-style-type: none;
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+
+        .options-list li {
+            margin-bottom: 5px;
+        }
+
+        .actions {
+            margin-top: 15px;
+            direction: rtl; /* Action buttons in Arabic */
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            font-family: 'Tajawal', sans-serif;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: opacity 0.2s;
+            line-height: 1.2;
+        }
+
+        .btn:hover {
+            opacity: 0.8;
+        }
+
+        .btn-check {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .btn-ref {
+            background-color: #f39c12;
+            color: white;
+        }
+
+        .answer-block {
+            display: none;
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+            border-radius: 4px;
+            font-weight: 600;
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+
+        /* Topics Table (Tab 1 & Tables inside answers) */
+        .topics-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: rgba(255, 255, 255, 0.9);
+            margin-top: 20px;
+            line-height: 1.5;
+        }
+        .topics-table th, .topics-table td {
+            border: 1px solid #7baacb;
+            padding: 10px;
+            text-align: left;
+        }
+        .topics-table th {
+            background-color: #5c83a1;
+            color: white;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 10px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.6;
+        }
+
+        .modal-header {
+            background-color: #f39c12;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            direction: rtl;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            background: transparent;
+            padding: 0;
+            font-size: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 20px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .verbatim-quote {
+            background-color: #f8f9fa;
+            border-left: 4px solid #6c757d;
+            padding: 15px;
+            font-style: italic;
+            color: #333;
+            margin-bottom: 20px;
+            direction: ltr;
+        }
+
+        .arabic-explanation {
+            direction: rtl;
+            text-align: right;
+            font-family: 'Tajawal', sans-serif;
+            background-color: #e8f4fd;
+            border-right: 4px solid #3498db;
+            padding: 15px;
+            color: #2980b9;
+        }
+
+        .arabic-explanation strong {
+            display: block;
+            margin-bottom: 8px;
+            color: #1a5276;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="notebook">
+        <!-- Tabs -->
+        <div class="tabs-container">
+            <button class="tab-btn active" onclick="switchTab('tab-topics', this)">جدول الموضوعات</button>
+            <button class="tab-btn" onclick="switchTab('tab-questions', this)">الأسئلة</button>
+        </div>
+
+        <!-- Tab 1: Table of Topics -->
+        <div id="tab-topics" class="tab-content active">
+            <h2>Table of Topics</h2>
+            <table class="topics-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Topic</th>
+                    </tr>
+                </thead>
+                <tbody id="topics-tbody">
+                    <!-- Topics will be injected here via JS -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Tab 2: Questions -->
+        <div id="tab-questions" class="tab-content">
+            <div id="questions-container">
+                <!-- Questions will be injected here via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Reference -->
+    <div class="modal-overlay" id="ref-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>المرجع (Reference)</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="verbatim-quote" id="modal-quote"></div>
+                <div class="arabic-explanation" id="modal-explanation"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const topicsList = [
+            "1,Overall security view: controlling Subjects, Objects, Actions",
+            "2,Relationship between Authentication, Authorization, Accounting (AAA)",
+            "3,‘Who can do what when?’ principle",
+            "4,The Safe example illustrating AAA",
+            "5,Definition of Authentication (computer & communication systems)",
+            "6,Token and Property concepts in identity validation",
+            "7,Trust in tokens and the integrity drawback",
+            "8,Three categories of authentication methods (know/have/are-trust)",
+            "9,What do you know? – Passwords and their characteristics",
+            "10,What do you have? – Types of tokens (ID, Seal, Smart Tokens, Biometrics)",
+            "11,Who do you trust? – Location, trusted third party, time",
+            "12,Definition of Authorization and Access Control",
+            "13,Security Policy and authorized/unauthorized states",
+            "14,Access Control Models: MAC, DAC, RBAC",
+            "15,Authorization as a core OS component",
+            "16,Access Criteria: Roles, Groups, Location",
+            "17,Access Criteria: Time, Transaction Types",
+            "18,Problems in controlling access to assets",
+            "19,Enterprise-wide / SSO solutions (provisioning, password sync, auditing, compliance)",
+            "20,Single Sign-On (SSO) definition and process",
+            "21,Legacy SSO and its risks (availability, single point of failure)",
+            "22,Kerberos protocol mechanism",
+            "23,SESAME protocol",
+            "24,SSO Pros",
+            "25,SSO Cons",
+            "26,Conclusion: no completely secure system; every method has a cost"
+        ];
+
+        const quizData = [
+            {
+                topic: "Topic 1: Overall security view: controlling Subjects, Objects, Actions",
+                questions: [
+                    {
+                        type: "Question 1 (Multiple Choice)",
+                        text: "According to the introduction, securing a system requires controlling which three elements?",
+                        options: ["A. Users, Passwords, Networks", "B. Subjects, Objects, and Actions", "C. Servers, Clients, and Routers", "D. Policies, Procedures, and Guidelines"],
+                        answer: "Answer: B. Subjects, Objects, and Actions",
+                        quote: "Slide 3:\n“we need to secure our system by controlling the subjects, objects and actions allowed on our system.”",
+                        explanation: "الأمان يتطلب التحكم في الكيانات (المستخدمين - Subjects)، الموارد (Objects)، والأفعال المسموح بها (Actions)."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 2: Relationship between Authentication, Authorization, Accounting (AAA)",
+                questions: [
+                    {
+                        type: "Question 2 (True / False)",
+                        text: "True or False: Achieving a secure system requires a good combination of Authentication, Authorization, and Auditing.",
+                        options: [],
+                        answer: "Answer: True.",
+                        quote: "Slide 3:\n“Achieving this goal requires a good combination of Authentication, Authorization, and Auditing.”",
+                        explanation: "تحقيق نظام آمن يتطلب دمج ثلاثة عناصر رئيسية: المصادقة (Authentication)، التفويض (Authorization)، والتدقيق أو المحاسبة (Auditing)."
+                    },
+                    {
+                        type: "Question 3 (Short Answer)",
+                        text: "Define Authentication as stated in the lecture.",
+                        options: [],
+                        answer: "Answer: Authentication is the process of identifying the subject.",
+                        quote: "Slide 4:\n“Authentication is the process of identifying the subject.”",
+                        explanation: "المصادقة هي عملية التحقق من هوية الكيان أو المستخدم."
+                    },
+                    {
+                        type: "Question 4 (Short Answer)",
+                        text: "Define Authorization as stated in the lecture.",
+                        options: [],
+                        answer: "Answer: Authorization defines a relation among subjects, actions, and objects.",
+                        quote: "Slide 4:\n“Authorization defines a relation among subjects, actions, and objects.”",
+                        explanation: "التفويض يحدد العلاقة والصلاحيات بين المستخدمين (الكيانات)، والأفعال، والموارد المتاحة."
+                    },
+                    {
+                        type: "Question 5 (Compare)",
+                        text: "Compare Authentication, Authorization, and Accounting (AAA) by stating each one's definition and role exactly as given in the lecture.",
+                        options: [],
+                        answer: `Answer:<br><table class="topics-table" style="margin-top:10px"><tr><th>Component</th><th>Definition</th><th>Role (“Who can do what when?”)</th></tr><tr><td>Authentication</td><td>The process of identifying the subject.</td><td>Allows us to identify “Who”.</td></tr><tr><td>Authorization</td><td>Defines a relation among subjects, actions, and objects.</td><td>Controls the action (“do what when”).</td></tr><tr><td>Accounting (Auditing)</td><td>The act of monitoring or auditing the actions of subjects on objects.</td><td>Records all the action.</td></tr></table>`,
+                        quote: "Slides 4-5:\n“Authentication is the process of identifying the subject. Authorization defines a relation among subjects, actions, and objects. Accounting is the act of monitoring or auditing the actions of subjects on objects. Together these three components allow us to control and trace every activity that occurs in our system.”\n“Authentication allows us to identify “Who”. Authorization controls the action (“do what when”). Auditing records all the action.”",
+                        explanation: "المصادقة تُعرّف 'من' هو المستخدم. التفويض يتحكم في 'ماذا يُسمح له أن يفعل ومتى'. والمحاسبة تُسجل جميع أفعاله."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 3: ‘Who can do what when?’ principle",
+                questions: [
+                    {
+                        type: "Question 6 (Multiple Choice)",
+                        text: "How can this view of security be summed up according to the lecture?",
+                        options: ["A. “What can be done where?”", "B. “Who can do what when?”", "C. “When can who access what?”", "D. “How is access granted?”"],
+                        answer: "Answer: B. “Who can do what when?”",
+                        quote: "Slide 5:\n“This view of security can be summed up as “Who can do what when?”.”",
+                        explanation: "تُلخص نظرة الأمان الشاملة في سؤال واحد: 'من يمكنه فعل ماذا ومتى؟'."
+                    },
+                    {
+                        type: "Question 7 (True / False)",
+                        text: "True or False: Missing one of the three components (Authentication, Authorization, Auditing) is likely to result in an insecure system.",
+                        options: [],
+                        answer: "Answer: True.",
+                        quote: "Slide 5:\n“All three components are necessary. Missing one component is likely to result in an insecure system.”",
+                        explanation: "فقدان أي عنصر من المكونات الثلاثة (AAA) يؤدي في الغالب إلى إنشاء نظام ضعيف وغير آمن."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 4: The Safe example illustrating AAA",
+                questions: [
+                    {
+                        type: "Question 8 (Scenario)",
+                        text: "Scenario: In the safe example, a person inserts a key into a lock to open a safe, and the system records who inserted keys. According to the lecture, what does the lock represent, and what does the log of people who inserted keys represent?",
+                        options: [],
+                        answer: "Answer: The lock is the mechanism for validating the key, i.e., the authentication. The log of people who inserted a key into the lock represents accounting.",
+                        quote: "Slide 6:\n“The authentication is the validation of the key. In this case, the mechanism for validating the key is the lock. Accounting could be a log of people who inserted a key into the lock.”",
+                        explanation: "الخزنة والقفل يمثلان عملية 'المصادقة' والتأكد من صحة المفتاح، بينما سجل الأشخاص الذين أدخلوا المفاتيح يمثل 'المحاسبة' أو التدقيق."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 5: Definition of Authentication (computer & communication systems)",
+                questions: [
+                    {
+                        type: "Question 9 (Multiple Choice)",
+                        text: "In a communication system, authentication is the process of:",
+                        options: ["A. Verifying the identity of a user", "B. Verifying the stated source of a message", "C. Encrypting the message content", "D. Compressing the message for transmission"],
+                        answer: "Answer: B. Verifying the stated source of a message",
+                        quote: "Slide 7:\n“In a communication system, authentication is the process of verifying the stated source of a message.”",
+                        explanation: "في أنظمة الاتصالات، المصادقة تعني التحقق من صحة المصدر المُدّعى للرسالة."
+                    },
+                    {
+                        type: "Question 10 (True / False)",
+                        text: "True or False: In a computer system, authentication is the process of verifying the identity of a user.",
+                        options: [],
+                        answer: "Answer: True.",
+                        quote: "Slide 7:\n“In a computer system, authentication is the process of verifying identity of a user.”",
+                        explanation: "في أنظمة الحاسب، المصادقة هي التحقق الفعلي من هوية المستخدم."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 6: Token and Property concepts in identity validation",
+                questions: [
+                    {
+                        type: "Question 11 (Multiple Choice)",
+                        text: "What does validating a subject require, according to the lecture?",
+                        options: ["A. Only a username and password", "B. Examination of a token or investigation of some property of the subject itself", "C. A network connection to a central server", "D. Encryption of all communications"],
+                        answer: "Answer: B. Examination of a token or investigation of some property of the subject itself",
+                        quote: "Slide 9:\n“validating a subject would require examination of a token or investigation of some property of the subject itself.”",
+                        explanation: "التحقق من الهوية يتطلب فحص رمز معين (Token) أو خاصية معينة تابعة للشخص نفسه (Property)."
+                    },
+                    {
+                        type: "Question 12 (Short Answer)",
+                        text: "In the transcript validation example, what is the 'token' that is examined?",
+                        options: [],
+                        answer: "Answer: The token is the university seal.",
+                        quote: "Slide 9:\n“In this example, the token is the university seal.”",
+                        explanation: "في مثال شهادة الجامعة، الرمز (Token) الذي يُثبت صحتها هو ختم الجامعة."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 7: Trust in tokens and the integrity drawback",
+                questions: [
+                    {
+                        type: "Question 13 (Explain)",
+                        text: "Explain the obvious drawback of basing authentication on a token, and why we must implicitly trust a token or property of the subject.",
+                        options: [],
+                        answer: "Answer: Implicitly, we have to trust a token or a property of the subject otherwise the validation process is impossible. The obvious drawback of basing the authentication on a token is the integrity of the token.",
+                        quote: "Slide 10:\n“Implicitly, we have to trust a token or a property of the subject otherwise the validation process is impossible. The obvious drawback of basing the authentication on a token is the integrity of the token.”",
+                        explanation: "يجب علينا أن نثق ضمنياً بالرمز لتتم المصادقة، لكن العيب الرئيسي هو التلاعب بـ'سلامة الرمز' (Integrity)، فقد يتم تزويره أو تقليده."
+                    },
+                    {
+                        type: "Question 14 (True / False)",
+                        text: "True or False: If authentication relies on tokens or properties of the subject, studying protocols and methods for validating properties or tokens is necessary.",
+                        options: [],
+                        answer: "Answer: True.",
+                        quote: "Slide 10:\n“If authentication relies on tokens or properties of the subject, studying protocols and methods for validating properties or token is necessary.”",
+                        explanation: "بما أن المصادقة تعتمد على الرموز أو الخصائص، فمن الضروري جداً دراسة الطرق والبروتوكولات التي تُثبت صحتها."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 8: Three categories of authentication methods (know/have/are-trust)",
+                questions: [
+                    {
+                        type: "Question 15 (Multiple Choice)",
+                        text: "What are the three main categories of authentication methods mentioned in the lecture?",
+                        options: ["A. Passwords, Firewalls, Encryption", "B. What do you know? / What do you have? / Who do you are-trust?", "C. Logging, Backup, Archiving", "D. MAC, DAC, RBAC"],
+                        answer: "Answer: B. What do you know? / What do you have? / Who do you are-trust?",
+                        quote: "Slide 11:\n“What do you know? What do you have? Who do you are / trust?”",
+                        explanation: "فئات المصادقة الثلاث هي: 1- شيء تعرفه، 2- شيء تملكه، 3- مَن أنت/بمَن تثق."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 9: What do you know? – Passwords and their characteristics",
+                questions: [
+                    {
+                        type: "Question 16 (True / False)",
+                        text: "True or False: The 'what do you know' method requires a physical token, making it harder to implement.",
+                        options: [],
+                        answer: "Answer: False. There is no need for a physical token, so it is easy to implement.",
+                        quote: "Slide 12:\n“there is no need for a physical token, so it is easy to implement”",
+                        explanation: "طريقة 'ماذا تعرف؟' (مثل كلمات المرور) تعتبر سهلة التطبيق لأنها لا تتطلب رمزاً مادياً ملموساً (كالبطاقة الذكية)."
+                    },
+                    {
+                        type: "Question 17 (Multiple Choice)",
+                        text: "What is the most common example of the 'what do you know' authentication method?",
+                        options: ["A. Smart card", "B. Biometric fingerprint", "C. Password or passphrase", "D. Security badge"],
+                        answer: "Answer: C. Password or passphrase",
+                        quote: "Slide 12:\n“The most common example of this method is the password or passphrase;”",
+                        explanation: "المثال الأكثر شيوعاً هو كلمة المرور أو عبارة المرور (Password/Passphrase)."
+                    },
+                    {
+                        type: "Question 18 (Explain)",
+                        text: "Explain the 'Age' characteristic of passwords as described in the lecture.",
+                        options: [],
+                        answer: "Answer: Password should be changed regularly. In fact, if it is expected that a password can be broken (possibly by brute force) in some time period, a system should force a user to change the password within that time frame.",
+                        quote: "Slide 13:\n“Age (password should be changed regularly. In fact, if it is expected that a password can be broken (possibly by brute force) in some time period, a system should force a user to change the password within that time frame.)”",
+                        explanation: "خاصية (العمر) تعني أنه يجب تغيير كلمة المرور بشكل دوري ومستمر، وذلك لضمان تغييرها قبل أن يتمكن أي مخترق من تخمينها أو كسرها."
+                    },
+                    {
+                        type: "Question 19 (Multiple Choice)",
+                        text: "Which of the following is NOT listed as a password-related security consideration in the lecture?",
+                        options: ["A. Invalid attempts", "B. Time between attempts", "C. One-time password", "D. Password color coding"],
+                        answer: "Answer: D. Password color coding",
+                        quote: "Slide 13:\n“Invalid attempts ... Time between attempts ... One-time password”",
+                        explanation: "الألوان في كلمة المرور ليست من ضمن الاعتبارات الأمنية، بينما عدد المحاولات الفاشلة والمدة الزمنية بينها من أهم العوامل الأمنية."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 10: What do you have? – Types of tokens (ID, Seal, Smart Tokens, Biometrics)",
+                questions: [
+                    {
+                        type: "Question 20 (Multiple Choice)",
+                        text: "Which of the following are listed as examples of tokens under 'What do you have'?",
+                        options: ["A. Password, PIN, Username", "B. ID, Seal, Smart Tokens, Biometrics", "C. Firewall, IDS, IPS", "D. Roles, Groups, Location"],
+                        answer: "Answer: B. ID, Seal, Smart Tokens, Biometrics",
+                        quote: "Slide 14:\n“ID Seal Smart Tokens Biometrics”",
+                        explanation: "الأشياء التي تملكها قد تكون بطاقة هوية (ID)، ختماً، بطاقات ذكية (Smart Tokens)، أو صفات حيوية (Biometrics كالبصمة)."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 11: Who do you trust? – Location, trusted third party, time",
+                questions: [
+                    {
+                        type: "Question 21 (Short Answer)",
+                        text: "What three things does the idea of 'trust' include in the 'Who do you trust' method?",
+                        options: [],
+                        answer: "Answer: The idea of a trust includes location, trusted third party and time.",
+                        quote: "Slide 15:\n“The idea of a trust includes location, trusted third party and time.”",
+                        explanation: "مفهوم 'الثقة' يعتمد على ثلاثة عوامل: موقع الشخص الجغرافي أو الشبكي (Location)، طرف ثالث موثوق، والوقت."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 12: Definition of Authorization and Access Control",
+                questions: [
+                    {
+                        type: "Question 22 (Multiple Choice)",
+                        text: "While Authentication is critical for identifying a person, Authorization is critical for:",
+                        options: ["A. Encrypting data in transit", "B. Controlling people and resources in a system based on their identity", "C. Generating backups of data", "D. Removing unused services"],
+                        answer: "Answer: B. Controlling people and resources in a system based on their identity",
+                        quote: "Slide 16:\n“While Authentication is critical for identifying a person, Authorization is critical for controlling people and resources in a system based on their identity.”",
+                        explanation: "التفويض يركز على التحكم في الأشخاص والموارد والتحكم فيما يُسمح لهم بفعله بناءً على هوياتهم."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 13: Security Policy and authorized/unauthorized states",
+                questions: [
+                    {
+                        type: "Question 23 (Explain)",
+                        text: "Explain the concept of a security policy and what it means intuitively, as described in the lecture.",
+                        options: [],
+                        answer: "Answer: A security policy is a statement that partitions the states of the system into a set of authorized, or secure, states and a set of unauthorized or insecure states. Intuitively, the art of securing a system is the process of preventing a system from entering an unauthorized state.",
+                        quote: "Slide 17:\n“A security policy is a statement that partitions the states of the system into a set of authorized, or secure, states and a set of unauthorized or insecure state.”\n““the art of securing a system is the process of preventing a system from entering an unauthorized state”.”",
+                        explanation: "السياسة الأمنية تُقسِّم حالات النظام إلى 'حالات مصرح بها (آمنة)' و'حالات غير مصرح بها'. وفن تأمين النظام هو ببساطة منع النظام من الوصول لأي حالة غير مصرح بها."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 14: Access Control Models: MAC, DAC, RBAC",
+                questions: [
+                    {
+                        type: "Question 24 (Multiple Choice)",
+                        text: "Which of the following are listed as Access Control Models in the lecture?",
+                        options: ["A. Kerberos, SESAME, SSO", "B. Mandatory Access Control (MAC), Discretionary Access Control (DAC), Role-Based Access Control (RBAC)", "C. Roles, Groups, Location, Time", "D. Authentication, Authorization, Accounting"],
+                        answer: "Answer: B. Mandatory Access Control (MAC), Discretionary Access Control (DAC), Role-Based Access Control (RBAC)",
+                        quote: "Slide 18:\n“Mandatory Access Control (MAC) Discretionary Access Control (DAC) Role-Based Access Control (RBAC)”",
+                        explanation: "نماذج التحكم في الوصول الرئيسية هي: التحكم الإلزامي، التحكم التقديري، والتحكم المبني على الأدوار (الوظائف)."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 15: Authorization as a core OS component",
+                questions: [
+                    {
+                        type: "Question 25 (Explain)",
+                        text: "Explain what Authorization determines and on what basis access rights should be granted.",
+                        options: [],
+                        answer: "Answer: Authorization determines that the proven identity has some set of characteristics associated with it that gives it the right to access the requested resources. Granting access rights to subjects should be based on the level of trust a company has in a subject and the subject's need to know.",
+                        quote: "Slide 19:\n“Determines that the proven identity has some set of characteristics associated with it that gives it the right to access the requested resources.”\n“Granting access rights to subjects should be based on the level of trust a company has in a subject and the subject’s need to know.”",
+                        explanation: "التفويض يمنح الصلاحيات بناءً على: 1- مستوى ثقة الشركة في المستخدم، 2- قاعدة 'الحاجة إلى المعرفة' (Need to know) لإنجاز عمله."
+                    },
+                    {
+                        type: "Question 26 (True / False)",
+                        text: "True or False: Authorization is a core component of every operating system and establishes whether a user is authorized to access a particular resource and what actions are permitted on it.",
+                        options: [],
+                        answer: "Answer: True.",
+                        quote: "Slide 19:\n“Is a core component of every operating system and established whether a user is authorized to access a particular resource and what actions he is permitted to perform on the resource”",
+                        explanation: "نعم، التفويض مكون أساسي في أي نظام تشغيل، وهو الذي يحدد ما إذا كان المستخدم مسموحاً له الوصول لمورد معين أم لا، وما هي العمليات المتاحة له."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 16: Access Criteria: Roles, Groups, Location",
+                questions: [
+                    {
+                        type: "Question 27 (Multiple Choice)",
+                        text: "What does the 'Roles' access criterion provide?",
+                        options: ["A. A way to encrypt passwords", "B. An efficient way to assign rights to a type of user who performs a certain task", "C. A backup schedule for data", "D. A method for password recovery"],
+                        answer: "Answer: B. An efficient way to assign rights to a type of user who performs a certain task",
+                        quote: "Slide 20:\n“Is an efficient way to assign rights to a type of user who performs a certain task (job assignment or function).”",
+                        explanation: "معيار 'الأدوار' يوفر وسيلة فعالة جداً لمنح الصلاحيات بناءً على نوع ومهام المستخدم أو وظيفته، بدلاً من منح كل مستخدم صلاحيات فردية."
+                    },
+                    {
+                        type: "Question 28 (Short Answer)",
+                        text: "When are 'Groups' used as an access criterion?",
+                        options: [],
+                        answer: "Answer: When several users require the same type of access to information and resources.",
+                        quote: "Slide 20:\n“When several users require the same type of access to information and resources.”",
+                        explanation: "تُستخدم 'المجموعات' عندما يكون هناك عدد من المستخدمين يحتاجون للوصول لنفس الموارد وبنفس الصلاحيات، فيتم إضافتهم في مجموعة واحدة."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 17: Access Criteria: Time, Transaction Types",
+                questions: [
+                    {
+                        type: "Question 29 (Short Answer)",
+                        text: "What is the purpose of the 'Time' access criterion?",
+                        options: [],
+                        answer: "Answer: Restrict the times that certain actions or services can be accessed.",
+                        quote: "Slide 21:\n“Restrict the times that certain actions or services can be accessed.”",
+                        explanation: "معيار 'الوقت' يُستخدم لتقييد فترات الوصول للخدمات؛ كأن يُسمح بدخول الموظفين للنظام أثناء ساعات الدوام الرسمي فقط."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 18: Problems in controlling access to assets",
+                questions: [
+                    {
+                        type: "Question 30 (Multiple Choice)",
+                        text: "Which of the following is listed as a problem in controlling access to assets?",
+                        options: ["A. Corporate environments keep changing", "B. Passwords are too short", "C. Too many firewalls", "D. Lack of biometric devices"],
+                        answer: "Answer: A. Corporate environments keep changing",
+                        quote: "Slide 22:\n“Corporate environments keep changing.”",
+                        explanation: "من أكبر تحديات التحكم في الوصول هو أن بيئة الشركة دائمة التغير (موظفون جدد، ترقيات، مغادرة الموظفين)."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 19: Enterprise-wide / SSO solutions (provisioning, password sync, auditing, compliance)",
+                questions: [
+                    {
+                        type: "Question 31 (Multiple Choice)",
+                        text: "Which of the following is provided by enterprise-wide and single sign-on solutions?",
+                        options: ["A. Hardware procurement", "B. User provisioning, password synchronization and reset, centralized auditing and reporting, regulatory compliance", "C. Physical security guards", "D. Network cabling standards"],
+                        answer: "Answer: B. User provisioning, password synchronization and reset, centralized auditing and reporting, regulatory compliance",
+                        quote: "Slide 23:\n“User provisioning. Password synchronization and reset. Centralized auditing and reporting. Regulatory compliance”",
+                        explanation: "حلول الدخول الموحد على مستوى الشركة توفر إدارة المستخدمين، مزامنة كلمات المرور، التدقيق المركزي، والتوافق مع اللوائح."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 20: Single Sign-On (SSO) definition and process",
+                questions: [
+                    {
+                        type: "Question 32 (True / False)",
+                        text: "True or False: SSO allows user credentials to be entered one time, and the user is then able to access all resources in primary and secondary network domains.",
+                        options: [],
+                        answer: "Answer: True.",
+                        quote: "Slide 24:\n“Allow user credentials to be entered one time and the user is then able to access all resources in primary and secondary network domains.”",
+                        explanation: "نظام تسجيل الدخول الموحد (SSO) يسمح للمستخدم بكتابة بياناته مرة واحدة فقط ليصل بعدها لجميع موارد الشبكات المختلفة دون إعادة تسجيل الدخول."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 21: Legacy SSO and its risks (availability, single point of failure)",
+                questions: [
+                    {
+                        type: "Question 33 (Explain)",
+                        text: "Explain the availability concern raised about legacy SSO systems.",
+                        options: [],
+                        answer: "Answer: The SSO system stores every user's password to every system. This causes concern with respect to availability: if the SSO system fails, denial of service results.",
+                        quote: "Slide 27:\n“The SSO system stores every user’s password to every system. This causes concern with respect to availability: if the SSO system fails, denial of service results.”",
+                        explanation: "في الأنظمة القديمة، تخزين كلمات مرور المستخدمين في مكان واحد يمثل خطراً على (التوافرية - Availability)؛ فإذا تعطل خادم الـ SSO سيتوقف النظام ولن يدخل أحد (Denial of Service)."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 22: Kerberos protocol mechanism",
+                questions: [
+                    {
+                        type: "Question 34 (Multiple Choice)",
+                        text: "Kerberos is described as:",
+                        options: ["A. A protocol developed by the European Union for multiple security domains", "B. An SSO open-standards protocol for authentication in a single security domain", "C. A backup and archive standard", "D. A type of biometric token"],
+                        answer: "Answer: B. An SSO open-standards protocol for authentication in a single security domain",
+                        quote: "Slide 28:\n“An SSO open-standards protocol for authentication in a single security domain.”",
+                        explanation: "Kerberos هو بروتوكول مصادقة مفتوح قياسي (Open-Standard) يعمل خصيصاً لتوفير دخول موحد ضمن 'نطاق أمني واحد' (Single security domain)."
+                    },
+                    {
+                        type: "Question 35 (Explain)",
+                        text: "Explain how Kerberos uses symmetric key encryption with key pairs.",
+                        options: [],
+                        answer: "Answer: Kerberos is an authentication protocol that uses symmetric key encryption in three key pairs: two authentication pairs are shared by the authenticator and a single principal, and one session pair is shared between principals. The session-key pair is distributed in such a way that principals are required to trust the authenticator rather than each other.",
+                        quote: "Slide 28:\n“Kerberos is an authentication protocol that uses symmetric key encryption in three key pairs: two authentication pairs are shared by the authenticator and a single principal, and one session pair is shared between principals.”\n“The session-key pair is distributed in such a way that principals are required to trust the authenticator rather than each other.”",
+                        explanation: "Kerberos يستخدم مفاتيح التشفير المتماثلة في ثلاثة أزواج، والهدف الأساسي منها هو أن المستخدمين لا يحتاجون للثقة في بعضهم البعض، بل يثقون في خادم المصادقة المركزي."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 23: SESAME protocol",
+                questions: [
+                    {
+                        type: "Question 36 (Compare)",
+                        text: "Compare Kerberos and SESAME based on the definitions given in the lecture (scope/domain each is designed for).",
+                        options: [],
+                        answer: `Answer:<br><table class="topics-table" style="margin-top:10px"><tr><th>Aspect</th><th>Kerberos</th><th>SESAME</th></tr><tr><td>Type</td><td>An SSO open-standards protocol for authentication.</td><td>A protocol developed by the European Union.</td></tr><tr><td>Scope/Domain</td><td>A single security domain.</td><td>Multiple or disparate security domains.</td></tr></table>`,
+                        quote: "Slides 28-29:\n“An SSO open-standards protocol for authentication in a single security domain.”\n“The Secure European System for Applications in a Multi-Vendor Environment (SESAME) is a protocol developed by the European Union that addresses multiple or disparate security domains.”",
+                        explanation: "Kerberos مصمم لنطاق أمني واحد، بينما SESAME ابتكره الاتحاد الأوروبي ليعمل في بيئات تشمل نطاقات أمنية متعددة ومختلفة."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 24: SSO Pros",
+                questions: [
+                    {
+                        type: "Question 37 (Multiple Choice)",
+                        text: "Which of the following is listed as a 'Pro' of SSO?",
+                        options: ["A. Single point of compromise", "B. Efficient log-on process – the user logs on only once to access all authorized systems", "C. Implementation difficulties", "D. Legacy interoperability issues"],
+                        answer: "Answer: B. Efficient log-on process – the user logs on only once to access all authorized systems",
+                        quote: "Slide 30:\n“Efficient log-on process –The user logs on only once to access all authorized systems.”",
+                        explanation: "من إيجابيات الـ SSO الكبيرة أنها توفر الكفاءة والسهولة للمستخدم، حيث يُسجل دخوله مرة واحدة فقط للوصول لكافة الأنظمة."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 25: SSO Cons",
+                questions: [
+                    {
+                        type: "Question 38 (Multiple Choice)",
+                        text: "What is described as a 'Con' of SSO regarding a single compromised sign-in?",
+                        options: ["A. It only affects one application", "B. A single compromised sign-in allows the intruder into all of the account owner's authorized resources", "C. It triggers an automatic password reset", "D. It has no effect on security"],
+                        answer: "Answer: B. A single compromised sign-in allows the intruder into all of the account owner's authorized resources",
+                        quote: "Slide 31:\n“Single point of compromise -A single compromised sign-in allows the intruder into all of the account owners authorized resources.”",
+                        explanation: "العيب الأكبر للـ SSO هو 'نقطة الاختراق الواحدة'؛ فإذا سرق المخترق حساب المستخدم، سيصل تلقائياً لجميع الأنظمة المربوطة بالحساب بدلاً من نظام واحد."
+                    }
+                ]
+            },
+            {
+                topic: "Topic 26: Conclusion: no completely secure system; every method has a cost",
+                questions: [
+                    {
+                        type: "Question 39 (True / False)",
+                        text: "True or False: According to the conclusion, every authentication method has a cost associated with it and can be circumvented.",
+                        options: [],
+                        answer: "Answer: True.",
+                        quote: "Slide 32:\n“Every authentication method has a cost associated with it and can be circumvented.”",
+                        explanation: "لا يوجد نظام آمن 100%؛ فكل طريقة مصادقة لها تكلفة (مادية أو تشغيلية)، ويمكن التحايل عليها واختراقها نظرياً أو عملياً."
+                    },
+                    {
+                        type: "Question 40 (Short Answer)",
+                        text: "According to the conclusion, what is the first step of security?",
+                        options: [],
+                        answer: "Answer: Authentication is the first step of security.",
+                        quote: "Slide 32:\n“Authentication is the first step of security.”",
+                        explanation: "المصادقة (التأكد من هوية المستخدم) هي الخطوة التأسيسية والأولى في بناء أي نظام أمني."
+                    }
+                ]
+            }
+        ];
+
+        // Init Data into DOM
+        document.addEventListener('DOMContentLoaded', () => {
+            // Render Topics Table
+            const tbody = document.getElementById('topics-tbody');
+            topicsList.forEach(item => {
+                const firstCommaIdx = item.indexOf(',');
+                const id = item.substring(0, firstCommaIdx);
+                const title = item.substring(firstCommaIdx + 1);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${id}</td><td>${title}</td>`;
+                tbody.appendChild(tr);
+            });
+
+            // Render Questions
+            const qContainer = document.getElementById('questions-container');
+            quizData.forEach((section, sIndex) => {
+                const topicHtml = `<h2 class="topic-header">${section.topic}</h2>`;
+                qContainer.insertAdjacentHTML('beforeend', topicHtml);
+
+                section.questions.forEach((q, qIndex) => {
+                    const blockId = `q-${sIndex}-${qIndex}`;
+                    let optionsHtml = '';
+                    if (q.options && q.options.length > 0) {
+                        optionsHtml = `<ul class="options-list">`;
+                        q.options.forEach(opt => {
+                            optionsHtml += `<li>${opt}</li>`;
+                        });
+                        optionsHtml += `</ul>`;
+                    }
+
+                    // Store stringified data for onclick inline JS
+                    const encodedQuote = encodeURIComponent(q.quote);
+                    const encodedExplanation = encodeURIComponent(q.explanation);
+
+                    const qHtml = `
+                        <div class="question-block">
+                            <div class="question-text">${q.type}<br>${q.text}</div>
+                            ${optionsHtml}
+                            
+                            <div class="actions">
+                                <button class="btn btn-check" onclick="toggleAnswer('${blockId}')">تحقق</button>
+                                <button class="btn btn-ref" onclick="openModal('${encodedQuote}', '${encodedExplanation}')">المرجع</button>
+                            </div>
+
+                            <div id="${blockId}-ans" class="answer-block">
+                                ${q.answer}
+                            </div>
+                        </div>
+                    `;
+                    qContainer.insertAdjacentHTML('beforeend', qHtml);
+                });
+            });
+        });
+
+        // Tab Switching Logic
+        function switchTab(tabId, btnElement) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            btnElement.classList.add('active');
+        }
+
+        // Toggle Answer Visibility
+        function toggleAnswer(blockId) {
+            const ansDiv = document.getElementById(`${blockId}-ans`);
+            if (ansDiv.style.display === 'block') {
+                ansDiv.style.display = 'none';
+            } else {
+                ansDiv.style.display = 'block';
+            }
+        }
+
+        // Modal Logic
+        const modal = document.getElementById('ref-modal');
+        const quoteEl = document.getElementById('modal-quote');
+        const expEl = document.getElementById('modal-explanation');
+
+        function openModal(encQuote, encExp) {
+            const quote = decodeURIComponent(encQuote);
+            const explanation = decodeURIComponent(encExp);
+            
+            // Format Quote with italics
+            quoteEl.innerHTML = `"${quote.replace(/\n/g, '<br>')}"`;
+            
+            // Add Arabic Explanation
+            expEl.innerHTML = `<strong>الشرح المبسط:</strong> ${explanation}`;
+            
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
