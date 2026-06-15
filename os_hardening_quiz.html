@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OS Hardening Practice Question Bank</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&family=Segoe+UI:wght@400;600;700&display=swap');
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #d7dcd7;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        /* Lined Notebook Style */
+        .notebook {
+            background-color: #fdfdfd;
+            max-width: 900px;
+            margin: 0 auto;
+            min-height: 80vh;
+            border-radius: 5px 15px 15px 5px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+            padding: 40px 40px 40px 80px;
+            /* Notebook lines */
+            background-image: repeating-linear-gradient(transparent, transparent 31px, #7baacb 31px, #7baacb 32px);
+            line-height: 32px;
+        }
+
+        /* Red margin line */
+        .notebook::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 55px;
+            width: 2px;
+            background: #e47d7d;
+        }
+
+        /* Tabs Styling */
+        .tabs-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            direction: rtl; /* UI in Arabic */
+        }
+
+        .tab-btn {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #fff;
+            border: 2px solid #5c83a1;
+            color: #5c83a1;
+            padding: 10px 25px;
+            font-size: 18px;
+            font-weight: 700;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            line-height: 1.2;
+        }
+
+        .tab-btn.active {
+            background-color: #5c83a1;
+            color: #fff;
+        }
+
+        .tab-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0,0,0,0.15);
+        }
+
+        .tab-content {
+            display: none;
+            background-color: transparent;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Content Styling */
+        h1, h2, h3 {
+            margin-top: 0;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: inline-block;
+            line-height: 1.4;
+            padding: 0 10px;
+            border-radius: 4px;
+        }
+
+        .topic-header {
+            color: #2c3e50;
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 5px;
+            margin-top: 40px;
+            display: block;
+            background-color: transparent;
+        }
+
+        .question-block {
+            margin-bottom: 30px;
+            background-color: rgba(255, 255, 255, 0.6);
+            padding: 10px;
+            border-radius: 5px;
+            line-height: 1.6;
+        }
+
+        .question-text {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .options-list {
+            list-style-type: none;
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+
+        .options-list li {
+            margin-bottom: 5px;
+        }
+
+        .actions {
+            margin-top: 15px;
+            direction: rtl; /* Action buttons in Arabic */
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            font-family: 'Tajawal', sans-serif;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: opacity 0.2s;
+            line-height: 1.2;
+        }
+
+        .btn:hover {
+            opacity: 0.8;
+        }
+
+        .btn-check {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .btn-ref {
+            background-color: #f39c12;
+            color: white;
+        }
+
+        .answer-block {
+            display: none;
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+            border-radius: 4px;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+
+        /* Topics Table (Tab 1) */
+        .topics-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: rgba(255, 255, 255, 0.9);
+            margin-top: 20px;
+            line-height: 1.5;
+        }
+        .topics-table th, .topics-table td {
+            border: 1px solid #7baacb;
+            padding: 10px;
+            text-align: left;
+        }
+        .topics-table th {
+            background-color: #5c83a1;
+            color: white;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 10px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.6;
+        }
+
+        .modal-header {
+            background-color: #f39c12;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            direction: rtl;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            background: transparent;
+            padding: 0;
+            font-size: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 20px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .verbatim-quote {
+            background-color: #f8f9fa;
+            border-left: 4px solid #6c757d;
+            padding: 15px;
+            font-style: italic;
+            color: #333;
+            margin-bottom: 20px;
+            direction: ltr;
+        }
+
+        .arabic-explanation {
+            direction: rtl;
+            text-align: right;
+            font-family: 'Tajawal', sans-serif;
+            background-color: #e8f4fd;
+            border-right: 4px solid #3498db;
+            padding: 15px;
+            color: #2980b9;
+        }
+
+        .arabic-explanation strong {
+            display: block;
+            margin-bottom: 8px;
+            color: #1a5276;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="notebook">
+        <!-- Tabs -->
+        <div class="tabs-container">
+            <button class="tab-btn active" onclick="switchTab('tab-topics', this)">جدول الموضوعات</button>
+            <button class="tab-btn" onclick="switchTab('tab-questions', this)">الأسئلة</button>
+        </div>
+
+        <!-- Tab 1: Table of Topics -->
+        <div id="tab-topics" class="tab-content active">
+            <h2>Table of Topics</h2>
+            <table class="topics-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Topic</th>
+                    </tr>
+                </thead>
+                <tbody id="topics-tbody">
+                    <!-- Topics will be injected here via JS -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Tab 2: Questions -->
+        <div id="tab-questions" class="tab-content">
+            <div id="questions-container">
+                <!-- Questions will be injected here via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Reference -->
+    <div class="modal-overlay" id="ref-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>المرجع (Reference)</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="verbatim-quote" id="modal-quote"></div>
+                <div class="arabic-explanation" id="modal-explanation"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Full exact data as requested with Arabic explanations added
+        const topicsList = [
+            "1,Operating System Hardening: Definition and Goals",
+            "2,Importance of Reducing the Attack Surface",
+            "3,Risks of Default Operating System Configurations",
+            "4,The System Security Planning Process",
+            "5,Elements of the Security Planning Process",
+            "6,Installing and Patching the Operating System",
+            "7,Securing the Boot Process",
+            "8,Removing Unnecessary Services, Applications, and Protocols",
+            "9,Configuring Users, Groups, and Permissions",
+            "10,Configuring Resource Controls",
+            "11,Installing Additional Security Controls (Antivirus, Firewalls, IDS/IPS)",
+            "12,Application Whitelisting",
+            "13,Testing System Security",
+            "14,Application Configuration and Securing Critical Content",
+            "15,Encryption Technology",
+            "16,Security Maintenance Overview",
+            "17,Logging: Importance and Considerations",
+            "18,Data Backup and Archive"
+        ];
+
+        const quizData = [
+            {
+                topic: "1. Operating System Hardening: Definition and Goals",
+                questions: [
+                    {
+                        type: "Question 1 (Multiple Choice)",
+                        text: "What is the primary goal of operating system hardening?",
+                        options: ["A. To increase the system's functionality", "B. To reduce the system's attack surface and lower the risk of breaches", "C. To make the system easier to use", "D. To install more applications"],
+                        answer: "Answer: B. To reduce the system's attack surface and lower the risk of breaches",
+                        quote: "Slide 3:\n“The goal is to protect sensitive computing systems, reducing the system’s attack surface, in order to lower the risk of data breaches, unauthorized access, systems hacking, or malware.”",
+                        explanation: "الهدف الأساسي من تحصين النظام هو حماية الأنظمة الحساسة عبر تقليل المساحة المعرضة للهجمات، مما يحد من خطر الاختراقات والبرمجيات الخبيثة."
+                    },
+                    {
+                        type: "Question 2 (True/False)",
+                        text: "True or False: OS hardening only involves patching the operating system and nothing else.",
+                        options: [],
+                        answer: "Answer: False. Hardening includes patching, configuration, removing unnecessary services, configuring users/permissions, installing additional security controls, and testing.",
+                        quote: "Slide 3:\n“Operating system (OS) hardening is the process of implementing security measures and patching for operating systems, such as Windows, Linux, or Apple OS X, to strengthen them against cyberattacks.”",
+                        explanation: "تحصين النظام ليس مجرد تحديث (ترقيع)، بل يشمل تطبيق مجموعة واسعة من الإجراءات الأمنية والإعدادات لتقوية النظام ضد الهجمات."
+                    },
+                    {
+                        type: "Question 3 (Short Answer)",
+                        text: "Briefly define operating system hardening.",
+                        options: [],
+                        answer: "Answer: OS hardening is the process of implementing security measures and patching for operating systems (e.g., Windows, Linux, OS X) to strengthen them against cyberattacks and reduce the attack surface.",
+                        quote: "Slide 3:\n“Operating system (OS) hardening is the process of implementing security measures and patching for operating systems, such as Windows, Linux, or Apple OS X, to strengthen them against cyberattacks.”",
+                        explanation: "تحصين النظام هو عملية تطبيق سياسات الأمان والتحديثات على أنظمة التشغيل (مثل ويندوز، لينكس) لتقويتها ضد أي هجمات سيبرانية."
+                    }
+                ]
+            },
+            {
+                topic: "2. Importance of Reducing the Attack Surface",
+                questions: [
+                    {
+                        type: "Question 1 (Multiple Choice)",
+                        text: "Why is it important to be aware of vulnerabilities in operating systems and applications as distributed?",
+                        options: ["A. Because vendors charge less for patched systems", "B. Because worms scan for such vulnerabilities at high rates", "C. Because it improves system speed", "D. Because it reduces storage requirements"],
+                        answer: "Answer: B. Because worms scan for such vulnerabilities at high rates",
+                        quote: "Slide 4:\n“we need to be aware of the expected presence of vulnerabilities in operating systems and applications as distributed, and the existence of worms scanning for such vulnerabilities at high rates.”",
+                        explanation: "من الضروري معرفة الثغرات لأن الفيروسات (الديدان) تقوم بالبحث والمسح المستمر عن هذه الثغرات لاستغلالها بمعدلات سريعة جداً."
+                    },
+                    {
+                        type: "Question 2 (True/False)",
+                        text: "True or False: A system can be compromised during installation before the latest patches are applied.",
+                        options: [],
+                        answer: "Answer: True.",
+                        quote: "Slide 5:\n“a system can be compromised during the installation process before it can install the latest patches or implement other hardening measures.”",
+                        explanation: "يمكن اختراق النظام حتى أثناء عملية التثبيت نفسها، وقبل أن تتاح الفرصة لتنزيل وتثبيت التحديثات الأمنية."
+                    },
+                    {
+                        type: "Question 3 (Short Answer)",
+                        text: "Why are computer client and server systems considered central to IT infrastructure security?",
+                        options: [],
+                        answer: "Answer: Because they may hold critical data and applications and are necessary tools for an organization's functioning, making their compromise highly damaging.",
+                        quote: "Slide 4:\n“Computer client and server systems are central components of the IT infrastructure for most organizations, may hold critical data and applications, and are a necessary tool for the function of an organization.”",
+                        explanation: "تعتبر هذه الأنظمة جوهرية لأنها تحتوي على البيانات الهامة وتطبيقات العمل، وأي اختراق لها يسبب ضرراً كبيراً لعمل المؤسسة."
+                    }
+                ]
+            },
+            {
+                topic: "3. Risks of Default Operating System Configurations",
+                questions: [
+                    {
+                        type: "Question 1 (Multiple Choice)",
+                        text: "What is typically true about the default configuration of many operating systems?",
+                        options: ["A. It maximizes security over usability", "B. It maximizes ease of use and functionality rather than security", "C. It disables all network services", "D. It automatically removes unused accounts"],
+                        answer: "Answer: B. It maximizes ease of use and functionality rather than security",
+                        quote: "Slide 9:\n“the default configuration for many operating systems often maximizes ease of use and functionality, rather than security.”",
+                        explanation: "الإعدادات الافتراضية للأنظمة تركز في الغالب على جعل النظام سهل الاستخدام وفعّالاً بدلاً من التركيز على أعلى درجات الأمان."
+                    },
+                    {
+                        type: "Question 2 (True/False)",
+                        text: "True or False: Security configuration guides and checklists should be informed by the specific needs of each organization.",
+                        options: [],
+                        answer: "Answer: True.",
+                        quote: "Slide 9:\n“This common approach (security configuration guides and checklists) should be always informed by the specific needs of each organization and their systems.”",
+                        explanation: "أدلة وقوائم الإعدادات الأمنية يجب أن تُخصص وتُعدل بناءً على الاحتياجات الفعلية والخاصة لكل مؤسسة."
+                    },
+                    {
+                        type: "Question 3 (Short Answer)",
+                        text: "Name the first critical step in securing a system.",
+                        options: [],
+                        answer: "Answer: Securing the base operating system upon which all other applications and services rely.",
+                        quote: "Slide 9:\n“The first critical step in securing a system is to secure the base operating system upon which all other applications and services rely.”",
+                        explanation: "الخطوة الأولى والأهم هي تأمين نظام التشغيل الأساسي نفسه، لأن جميع التطبيقات والخدمات الأخرى تعتمد عليه بشكل مباشر."
+                    }
+                ]
+            },
+            {
+                topic: "4. The System Security Planning Process",
+                questions: [
+                    {
+                        type: "Question 1 (Multiple Choice)",
+                        text: "What is the aim of system security planning?",
+                        options: ["A. To maximize cost while minimizing security", "B. To maximize security while minimizing costs", "C. To eliminate the need for personnel training", "D. To avoid identifying security requirements"],
+                        answer: "Answer: B. To maximize security while minimizing costs",
+                        quote: "Slide 7:\n“Aim is to maximize security while minimizing costs”",
+                        explanation: "الهدف من التخطيط الأمني هو الحصول على أقصى درجات الحماية بأقل التكاليف الممكنة."
+                    },
+                    {
+                        type: "Question 2 (True/False)",
+                        text: "True or False: Planning should include a wide security assessment of the organization.",
+                        options: [],
+                        answer: "Answer: True.",
+                        quote: "Slide 7:\n“Planning should include a wide security assessment of the organization”",
+                        explanation: "يجب أن تتضمن عملية التخطيط تقييماً أمنياً شاملاً وواسعاً لجميع أجزاء المؤسسة."
+                    },
+                    {
+                        type: "Question 3 (Short Answer)",
+                        text: "What does the planning process need to identify regarding personnel?",
+                        options: [],
+                        answer: "Answer: It needs to identify appropriate personnel and training to install and manage the system.",
+                        quote: "Slide 7:\n“Plan needs to identify appropriate personnel and training to install and manage the system”",
+                        explanation: "التخطيط يجب أن يُحدد الموظفين المناسبين ونوع التدريب الذي يحتاجونه ليتمكنوا من تثبيت وإدارة النظام بشكل آمن."
+                    }
+                ]
+            },
+            {
+                topic: "5. Elements of the Security Planning Process",
+                questions: [
+                    {
+                        type: "Question 1 (Multiple Choice)",
+                        text: "Which of the following is NOT one of the elements considered in the system security planning process?",
+                        options: ["A. How users are authenticated", "B. The purpose of the system and its security requirements", "C. The brand of the computer hardware", "D. Who will administer the system and how"],
+                        answer: "Answer: C. The brand of the computer hardware",
+                        quote: "Slide 8:\n“The purpose of the system, the type of information stored, the applications and services provided, and their security requirements”",
+                        explanation: "التخطيط الأمني يركز على الغرض من النظام وصلاحيات المستخدمين والبيانات، وليس على العلامة التجارية (الماركة) للأجهزة."
+                    },
+                    {
+                        type: "Question 2 (True/False)",
+                        text: "True or False: The planning process should determine what access the system has to information stored on other hosts, such as file or database servers.",
+                        options: [],
+                        answer: "Answer: True.",
+                        quote: "Slide 8:\n“What access the system has to information stored on other hosts, such as file or database servers, and how this is managed”",
+                        explanation: "من الضروري في التخطيط تحديد صلاحيات وصول النظام إلى المعلومات المخزنة في أجهزة أخرى (مثل قواعد البيانات)."
+                    },
+                    {
+                        type: "Question 3 (Short Answer)",
+                        text: "List two additional security measures that should be considered during planning.",
+                        options: [],
+                        answer: "Answer: Examples include host firewalls, anti-virus or other malware protection mechanisms, and logging.",
+                        quote: "Slide 8:\n“Any additional security measures required on the system, including the use of host firewalls, anti-virus or other malware protection mechanisms, and logging”",
+                        explanation: "من التدابير الإضافية: استخدام الجدران النارية على الأجهزة (Host Firewalls)، برامج مكافحة الفيروسات، وتفعيل سجلات المراقبة (Logging)."
+                    }
+                ]
+            },
+            {
+                topic: "6. Installing and Patching the Operating System",
+                questions: [
+                    {
+                        type: "Question 1 (Multiple Choice)",
+                        text: "What should be done before connecting a new machine to the network during installation?",
+                        options: ["A. Install all available software packages", "B. Secure the machine first, or use a limited firewall with no inbound connections", "C. Disable all updates permanently", "D. Connect to all external sites for updates"],
+                        answer: "Answer: B. Secure the machine first, or use a limited firewall with no inbound connections",
+                        quote: "Slide 12:\n“Machines should not connect to network until secured ... Limited network (firewall) is acceptable, ideally: No inbound connections, Only out to certain key sites”",
+                        explanation: "يجب عدم ربط الجهاز بالشبكة إلا بعد تأمينه، أو استخدام جدار حماية يمنع أي اتصالات واردة (Inbound) ويسمح بالاتصال الخارجي المحدود للتحديثات."
+                    },
+                    {
+                        type: "Question 2 (True/False)",
+                        text: "True or False: Automatic updates should always be enabled regardless of whether update timing is an issue.",
+                        options: [],
+                        answer: "Answer: False. Automatic updates should be set up only if update time is not an issue.",
+                        quote: "Slide 13:\n“Set up automatic updates (only if update time is not an issue).”",
+                        explanation: "التحديثات التلقائية تُفعل فقط إذا كان وقت التحديث لا يؤثر على سير العمل ولا يسبب انقطاعاً في خدمات مهمة."
+                    },
+                    {
+                        type: "Question 3 (Short Answer)",
+                        text: "Why must the integrity and source of additional device drivers be carefully validated?",
+                        options: [],
+                        answer: "Answer: Because drivers execute with full kernel-level privileges but are often supplied by third parties, so unverified drivers pose a high security risk.",
+                        quote: "Slide 12:\n“Since this executes with full kernel level privileges but is often supplied by a third party. The integrity and source of such driver code must be carefully validated given the high level of trust it has.”",
+                        explanation: "لأن تعريفات الأجهزة (Drivers) تعمل بصلاحيات عالية جداً داخل النظام (Kernel-level). وإذا كانت من مصدر غير موثوق فقد تسبب اختراقاً كاملاً للنظام."
+                    }
+                ]
+            },
+            {
+                topic: "7. Securing the Boot Process",
+                questions: [
+                    {
+                        type: "Question 1 (Multiple Choice)",
+                        text: "Why should BIOS changes be protected with a password?",
+                        options: ["A. To improve boot speed", "B. To prevent attackers from changing the boot process to bypass access controls", "C. To allow remote BIOS updates", "D. To enable booting from any external media"],
+                        answer: "Answer: B. To prevent attackers from changing the boot process to bypass access controls",
+                        quote: "Slide 14:\n“This is necessary to prevent an attacker from changing the boot process to boot a system of their choice from external media in order to bypass the normal system access controls on locally stored data.”",
+                        explanation: "كلمة مرور الـ BIOS تمنع المخترق من الإقلاع من قرص خارجي (فلاشة مثلاً) لتجاوز حماية النظام والدخول إلى البيانات المحلية."
+                    },
+                    {
+                        type: "Question 2 (True/False)",
+                        text: "True or False: Limiting which media a system can boot from helps prevent attackers from bypassing local access controls.",
+                        options: [],
+                        answer: "Answer: True.",
+                        quote: "Slide 14:\n“Limit which media the system is normally permitted to boot from.”",
+                        explanation: "تحديد وسائل الإقلاع المسموح بها (كإلغاء الإقلاع من USB) يمنع تجاوز صلاحيات الحماية المحلية."
+                    },
+                    {
+                        type: "Question 3 (Short Answer)",
+                        text: "What additional technology can be used to protect data on a system even if boot controls are bypassed?",
+                        options: [],
+                        answer: "Answer: The use of a cryptographic file system.",
+                        quote: "Slide 14:\n“The use of a cryptographic file system may also be used to address this threat.”",
+                        explanation: "استخدام نظام ملفات مشفر (Cryptographic File System) يضمن حماية البيانات حتى لو نجح المخترق في تجاوز عملية الإقلاع."
+                    }
+                ]
+            },
+            {
+                topic: "8. Removing Unnecessary Services, Applications, and Protocols",
+                questions: [
+                    {
+                        type: "Question 1 (Multiple Choice)",
+                        text: "What is the recommended approach to unnecessary software during initial installation?",
+                        options: ["A. Install everything and uninstall later if needed", "B. Better not to install it at all", "C. Install it but disable it", "D. Install it and restrict network access only"],
+                        answer: "Answer: B. Better not to install it at all",
+                        quote: "Slide 15:\n“Better not to install it at all”",
+                        explanation: "أفضل ممارسة أمنية هي عدم تثبيت البرامج غير الضرورية من الأساس بدلاً من تثبيتها ثم محاولة تعطيلها."
+                    },
+                    {
+                        type: "Question 2 (True/False)",
+                        text: "True or False: Disabled software cannot be re-enabled by an attacker who gains control of a system.",
+                        options: [],
+                        answer: "Answer: False. Disabled software may be enabled by an attacker upon control acquisition.",
+                        quote: "Slide 15:\n“Disabled software may be enabled by an attacker upon control acquisition”",
+                        explanation: "البرامج المعطلة تمثل خطراً، لأن المخترق إذا حصل على وصول للنظام يمكنه إعادة تفعيل هذه البرامج واستغلال ثغراتها."
+                    },
+                    {
+                        type: "Question 3 (Short Answer)",
+                        text: "Give one reason why uninstalling unnecessary software is not always sufficient for security.",
+                        options: [],
+                        answer: "Answer: Uninstallers sometimes fail to clean all dependencies, leaving residual components that could be exploited.",
+                        quote: "Slide 15:\n“Uninstallers sometimes fail to clean all dependency”",
+                        explanation: "عملية إزالة البرامج (Uninstall) أحياناً لا تمسح كافة الملفات الملحقة أو الاعتمادات (Dependencies)، مما يترك بقايا يمكن استغلالها."
+                    }
+                ]
+            },
+            {
+                topic: "9. Configuring Users, Groups, and Permissions",
+                questions: [
+                    {
+                        type: "Question 1 (Multiple Choice)",
+                        text: "Which principle should govern the assignment of elevated (admin) privileges?",
+                        options: ["A. All users should have admin privileges by default", "B. Elevated privileges should be restricted to only those who need them, and only when needed", "C. Admin privileges should be permanent for convenience", "D. Admin privileges should be shared among all departments"],
+                        answer: "Answer: B. Elevated privileges should be restricted to only those who need them, and only when needed",
+                        quote: "Slide 17:\n“Elevated privileges should be restricted to only those users that require them, and then only when they are needed to perform a task.”",
+                        explanation: "صلاحيات المسؤول يجب أن تُمنح فقط لمن يحتاجها فعلياً، وفقط في الوقت الذي يحتاج فيه لإنجاز مهمة معينة (مبدأ الصلاحيات الأقل)."
+                    },
+                    {
+                        type: "Question 2 (True/False)",
+                        text: "True or False: Default accounts that are not required should be removed or disabled.",
+                        options: [],
+                        answer: "Answer: True.",
+                        quote: "Slide 18:\n“Those that are not required should be either removed or disabled.”",
+                        explanation: "الحسابات الافتراضية (مثل حسابات Guest أو Admin الافتراضي) يجب إزالتها أو تعطيلها إذا لم تكن هناك حاجة لها لمنع استغلالها."
+                    },
+                    {
+                        type: "Question 3 (Short Answer)",
+                        text: "Name the three general categories of user access levels mentioned in operating system configuration.",
+                        options: [],
+                        answer: "Answer: Admin (ideally only temporary), Normal, and Limited.",
+                        quote: "Slide 17:\n“Admin (ideally only temporary), Normal, Limited”",
+                        explanation: "فئات الوصول الثلاث هي: مسؤول Admin (ويُفضل أن يكون مؤقتاً)، مستخدم عادي Normal، ومستخدم بصلاحيات مقيدة Limited."
+                    }
+                ]
+            },
+            {
+                topic: "10. Configuring Resource Controls",
+                questions: [
+                    {
+                        type: "Question 1 (Multiple Choice)",
+                        text: "What should be done once users and groups are properly defined?",
+                        options: ["A. Remove all access controls", "B. Set appropriate permissions on data and resources", "C. Grant all users full access for simplicity", "D. Disable all authentication mechanisms"],
+                        answer: "Answer: B. Set appropriate permissions on data and resources",
+                        quote: "Slide 19:\n“Once the users and groups are defined, appropriate permissions can be set on data and resources.”",
+                        explanation: "بعد تعريف المستخدمين والمجموعات، الخطوة التالية هي ضبط وإعداد الصلاحيات المناسبة للوصول إلى البيانات والموارد."
+                    },
+                    {
+                        type: "Question 2 (True/False)",
+                        text: "True or False: Security hardening guides often provide recommended changes to default access configurations.",
+                        options: [],
+                        answer: "Answer: True.",
+                        quote: "Slide 19:\n“Many of the security hardening guides provide lists of recommended changes to the default access configuration.”",
+                        explanation: "أدلة التحصين الأمني عادةً ما تقدم قوائم بالتعديلات الموصى بها على إعدادات الوصول الافتراضية لزيادة الأمان."
+                    },
+                    {
+                        type: "Question 3 (Short Answer)",
+                        text: "What system-planning information should be considered before configuring resource controls?",
+                        options: [],
+                        answer: "Answer: The categories of users, the privileges they have, the types of information they can access, and how/where they are authenticated.",
+                        quote: "Slide 18:\n“Categories of users on the system. Privileges they have. Types of information they can access. How and where they are defined and authenticated.”",
+                        explanation: "يجب الأخذ في الاعتبار فئات المستخدمين، صلاحياتهم، أنواع البيانات التي يمكنهم الوصول إليها، وكيفية مصادقة هوياتهم."
+                    }
+                ]
+            },
+            {
+                topic: "11. Installing Additional Security Controls (Antivirus, Firewalls, IDS/IPS)",
+                questions: [
+                    {
+                        type: "Question 1 (Multiple Choice)",
+                        text: "How are host-based firewalls traditionally configured?",
+                        options: ["A. To allow all traffic by default", "B. To limit access by port or protocol from some or all external systems", "C. To block only internal traffic", "D. To replace the need for antivirus software"],
+                        answer: "Answer: B. To limit access by port or protocol from some or all external systems",
+                        quote: "Slide 20:\n“Firewalls are traditionally configured to limit access by port or protocol, from some or all external systems.”",
+                        explanation: "الجدران النارية يتم إعدادها لتقييد وتقنين الوصول بناءً على رقم المنفذ (Port) أو البروتوكول المسموح به من الأجهزة الخارجية."
+                    },
+                    {
+                        type: "Question 2 (True/False)",
+                        text: "True or False: Anti-virus software addresses a wide range of malware types and is a critical security component on many systems.",
+                        options: [],
+                        answer: "Answer: True.",
+                        quote: "Slide 20:\n“Anti-virus software (which as noted addresses a wide range of malware types) is a critical security component on many systems.”",
+                        explanation: "برامج مكافحة الفيروسات تعالج وتكافح نطاقاً واسعاً من البرمجيات الخبيثة وتعتبر مكوناً أمنياً لا غنى عنه."
+                    },
+                    {
+                        type: "Question 3 (Short Answer)",
+                        text: "What additional mechanisms might IDS and IPS software include?",
+                        options: [],
+                        answer: "Answer: Traffic monitoring and file integrity checking, which help identify and respond to certain types of attacks.",
+                        quote: "Slide 21:\n“IDS and IPS software may include additional mechanisms such as traffic monitoring, or file integrity checking to identify and even respond to some types of attack.”",
+                        explanation: "أنظمة كشف ومنع التطفل (IDS/IPS) قد تشمل آليات إضافية مثل مراقبة حركة الشبكة والتحقق من سلامة الملفات لاكتشاف الهجمات."
+                    }
+                ]
+            },
+            {
+                topic: "12. Application Whitelisting",
+                questions: [
+                    {
+                        type: "Question 1 (Multiple Choice)",
+                        text: "What does application whitelisting limit?",
+                        options: ["A. The number of users on a system", "B. The programs that can execute on the system to those in an explicit list", "C. The amount of disk space available", "D. The network bandwidth used by applications"],
+                        answer: "Answer: B. The programs that can execute on the system to those in an explicit list",
+                        quote: "Slide 21:\n“This limits the programs that can execute on the system to just those in an explicit list.”",
+                        explanation: "تقنية القائمة البيضاء للتطبيقات تمنع تشغيل أي برنامج على النظام باستثناء البرامج المحددة والمصرح بها مسبقاً في القائمة."
+                    },
+                    {
+                        type: "Question 2 (True/False)",
+                        text: "True or False: Application whitelisting works equally well in all environments regardless of how predictable the application set is.",
+                        options: [],
+                        answer: "Answer: False. It functions best in environments with a predictable set of applications that users require.",
+                        quote: "Slide 21:\n“it functions best in an environment with a predictable set of applications that users require. Not all organizations or all systems will be sufficiently predictable to suit this type of control.”",
+                        explanation: "هذه التقنية تعمل بشكل أفضل في بيئات العمل التي يكون فيها استخدام البرامج معروفاً وثابتاً (Predictable) وليس في البيئات المفتوحة المتغيرة."
+                    },
+                    {
+                        type: "Question 3 (Short Answer)",
+                        text: "What is the main security benefit of application whitelisting?",
+                        options: [],
+                        answer: "Answer: It can prevent an attacker from installing and running their own malware on the system.",
+                        quote: "Slide 21:\n“Such a tool can prevent an attacker installing and running their own malware.”",
+                        explanation: "الفائدة الرئيسية هي منع المخترقين من تشغيل برامجهم الخبيثة (Malware) لأنها ببساطة غير موجودة في القائمة البيضاء المسموح بها."
+                    }
+                ]
+            },
+            {
+                topic: "13. Testing System Security",
+                questions: [
+                    {
+                        type: "Question 1 (Multiple Choice)",
+                        text: "What is the goal of the final step (security testing) in securing the base operating system?",
+                        options: ["A. To add new features to the system", "B. To ensure security configuration steps are correctly implemented and identify vulnerabilities", "C. To remove all logging mechanisms", "D. To increase user privileges"],
+                        answer: "Answer: B. To ensure security configuration steps are correctly implemented and identify vulnerabilities",
+                        quote: "Slide 22:\n“Ensure the previous security configuration steps are correctly implemented. Identify any possible vulnerabilities that must be corrected or managed.”",
+                        explanation: "الهدف من الاختبار هو التأكد من أن خطوات الأمان السابقة تم تطبيقها بشكل صحيح، واكتشاف أي ثغرات متبقية لمعالجتها."
+                    },
+                    {
+                        type: "Question 2 (True/False)",
+                        text: "True or False: Security testing should be performed only once, immediately after installation, and never repeated.",
+                        options: [],
+                        answer: "Answer: False. It should be done after initial hardening and then repeated periodically as part of security maintenance.",
+                        quote: "Slide 23:\n“This should be done following the system's initial hardening and then repeated periodically as part of the security maintenance process.”",
+                        explanation: "الاختبار الأمني ليس عملية تتم لمرة واحدة، بل يجب إعادته بشكل دوري ومستمر كجزء من الصيانة الأمنية."
+                    },
+                    {
+                        type: "Question 3 (Short Answer)",
+                        text: "What do specialized security testing programs scan for?",
+                        options: [],
+                        answer: "Answer: They scan for known vulnerabilities and poor configuration practices, and review whether the system meets basic security requirements.",
+                        quote: "Slide 23:\n“Review a system to ensure that a system meets the basic security requirements. Scan for known vulnerabilities and poor configuration practices.”",
+                        explanation: "برامج الاختبار المتخصصة تبحث عن الثغرات المعروفة مسبقاً وسوء إعدادات النظام للتأكد من تلبية متطلبات الأمان."
+                    }
+                ]
+            },
+            {
+                topic: "14. Application Configuration and Securing Critical Content",
+                questions: [
+                    {
+                        type: "Question 1 (Multiple Choice)",
+                        text: "Regarding default scripts and accounts included with applications, what is the recommended action?",
+                        options: ["A. Keep all of them for compatibility", "B. Review them and only retain if required, suitably secured", "C. Ignore them since they pose no risk", "D. Share them with all users"],
+                        answer: "Answer: B. Review them and only retain if required, suitably secured",
+                        quote: "Slide 24:\n“These should be reviewed, and only retained if required, and suitably secured.”",
+                        explanation: "يجب مراجعة الحسابات والبرمجيات الافتراضية، والاحتفاظ بها فقط إذا كانت ضرورية للعمل، مع التأكد من تأمينها بشكل جيد."
+                    },
+                    {
+                        type: "Question 2 (True/False)",
+                        text: "True or False: A web server application should generally be granted the right to modify files even if not specifically required.",
+                        options: [],
+                        answer: "Answer: False. The server should not be granted file modification rights unless that function is specifically required.",
+                        quote: "Slide 25:\n“The server application should not be granted the right to modify files unless that function is specifically required.”",
+                        explanation: "لا ينبغي إعطاء خوادم الويب صلاحيات تعديل الملفات إلا إذا كانت هناك حاجة تقنية صريحة لذلك (لمنع المخترق من تعديل ملفات الموقع)."
+                    },
+                    {
+                        type: "Question 3 (Short Answer)",
+                        text: "Give an example application type mentioned that often includes insecure example scripts.",
+                        options: [],
+                        answer: "Answer: Web servers, which often include several example scripts, many of which are known to be insecure.",
+                        quote: "Slide 25:\n“A well-known example of this is found with Web servers, which often include several example scripts, quite a few of which are known to be insecure.”",
+                        explanation: "خوادم الويب (Web Servers) هي مثال شائع، حيث تأتي غالباً مع نصوص برمجية أمثلة (Example Scripts) يُعرف أنها تحتوي على ثغرات."
+                    }
+                ]
+            },
+            {
+                topic: "15. Encryption Technology",
+                questions: [
+                    {
+                        type: "Question 1 (Multiple Choice)",
+                        text: "Encryption is primarily used to secure data:",
+                        options: ["A. Only when stored on backup tapes", "B. Both in transit and when stored", "C. Only during transmission over wireless networks", "D. Only for administrator accounts"],
+                        answer: "Answer: B. Both in transit and when stored",
+                        quote: "Slide 26:\n“Encryption is a key-enabling technology that may be used to secure data both in transit and when stored.”",
+                        explanation: "يستخدم التشفير لحماية البيانات في كلتا الحالتين: أثناء نقلها عبر الشبكات (In Transit) وأثناء تخزينها في الأقراص (When Stored)."
+                    },
+                    {
+                        type: "Question 2 (True/False)",
+                        text: "True or False: If encryption technologies are required, cryptographic keys must be created, signed, and secured.",
+                        options: [],
+                        answer: "Answer: True.",
+                        quote: "Slide 26:\n“If such technologies are required for the system, then they must be configured, and appropriate cryptographic keys must be created, signed, and secured.”",
+                        explanation: "عند استخدام التشفير، من الضروري جداً إنشاء مفاتيح التشفير وتوقيعها وتأمينها، لأن سرية البيانات تعتمد على سرية هذه المفاتيح."
+                    },
+                    {
+                        type: "Question 3 (Short Answer)",
+                        text: "What is described as a 'key-enabling technology' in securing critical content?",
+                        options: [],
+                        answer: "Answer: Encryption technology.",
+                        quote: "Slide 26:\n“Encryption is a key-enabling technology that may be used to secure data both in transit and when stored.”",
+                        explanation: "تقنية التشفير (Encryption Technology) توصف بأنها التكنولوجيا الأساسية التمكينية لحماية وتأمين المحتوى الحرج."
+                    }
+                ]
+            },
+            {
+                topic: "16. Security Maintenance Overview",
+                questions: [
+                    {
+                        type: "Question 1 (Multiple Choice)",
+                        text: "Why is the process of maintaining security described as continuous?",
+                        options: ["A. Because hardware needs constant replacement", "B. Because of the constantly changing environment and discovery of new vulnerabilities and threats", "C. Because users change passwords daily", "D. Because logging is disabled periodically"],
+                        answer: "Answer: B. Because of the constantly changing environment and discovery of new vulnerabilities and threats",
+                        quote: "Slide 27:\n“This results from the constantly changing environment, the discovery of new vulnerabilities, and hence exposure to new threats.”",
+                        explanation: "الصيانة الأمنية مستمرة لأن بيئة التقنية تتغير باستمرار، ويتم اكتشاف ثغرات وتهديدات جديدة بشكل يومي."
+                    },
+                    {
+                        type: "Question 2 (True/False)",
+                        text: "True or False: Security maintenance includes recovering from security compromises and regularly testing system security.",
+                        options: [],
+                        answer: "Answer: True.",
+                        quote: "Slide 27:\n“Recovering from security compromises. Regularly testing system security.”",
+                        explanation: "تشمل الصيانة الأمنية أيضاً عمليات التعافي بعد الاختراقات وإجراء اختبارات أمنية دورية للأنظمة."
+                    },
+                    {
+                        type: "Question 3 (Short Answer)",
+                        text: "Name one software maintenance process activity included in security maintenance.",
+                        options: [],
+                        answer: "Answer: Using appropriate software maintenance processes to patch and update all critical software and to monitor and revise configuration as needed.",
+                        quote: "Slide 27:\n“Using appropriate software maintenance processes to patch and update all critical software, and to monitor and revise configuration as needed.”",
+                        explanation: "تحديث وترقيع البرامج الهامة ومراقبة ومراجعة الإعدادات باستمرار هي من الأنشطة الأساسية للصيانة."
+                    }
+                ]
+            },
+            {
+                topic: "17. Logging: Importance and Considerations",
+                questions: [
+                    {
+                        type: "Question 1 (Multiple Choice)",
+                        text: "What is a key limitation of logging mentioned in the material?",
+                        options: ["A. It can prevent attacks before they happen", "B. It can only inform you about bad things that have already happened", "C. It eliminates the need for backups", "D. It automatically fixes vulnerabilities"],
+                        answer: "Answer: B. It can only inform you about bad things that have already happened",
+                        quote: "Slide 28:\n“Can only inform you about bad things that have already happened”",
+                        explanation: "القصور الرئيسي في أنظمة السجلات (Logging) هو أنها لا تمنع الهجوم، بل تخبرك فقط بالهجمات والأمور السيئة بعد وقوعها."
+                    },
+                    {
+                        type: "Question 2 (True/False)",
+                        text: "True or False: Automated analysis of log data is preferred over manual review.",
+                        options: [],
+                        answer: "Answer: True.",
+                        quote: "Slide 28:\n“Automated analysis is preferred”",
+                        explanation: "التحليل الآلي للسجلات مفضل على المراجعة اليدوية نظراً للكم الهائل من البيانات التي يتم تسجيلها."
+                    },
+                    {
+                        type: "Question 3 (Short Answer)",
+                        text: "When should the range of data to be logged be determined?",
+                        options: [],
+                        answer: "Answer: During the system planning stage.",
+                        quote: "Slide 28:\n“Range of data acquired should be determined during the system planning stage”",
+                        explanation: "يجب تحديد نوع ونطاق البيانات التي سيتم الاحتفاظ بها في السجلات في مرحلة التخطيط للنظام."
+                    }
+                ]
+            },
+            {
+                topic: "18. Data Backup and Archive",
+                questions: [
+                    {
+                        type: "Question 1 (Multiple Choice)",
+                        text: "What is the key difference between backup and archive?",
+                        options: ["A. Backup is for months/years; archive is for hours/weeks", "B. Backup allows recovery over short periods (hours to weeks); archive retains data over extended periods (months to years) for legal/operational needs", "C. They are identical processes with different names", "D. Archive is only used for encryption keys"],
+                        answer: "Answer: B. Backup allows recovery over short periods (hours to weeks); archive retains data over extended periods (months to years) for legal/operational needs",
+                        quote: "Slide 29:\n“Backup: The process of making copies of data at regular intervals, allowing the recovery of lost or corrupted data over relatively short time periods of a few hours to some weeks. Archive: The process of retaining copies of data over extended periods of time, being months or years, in order to meet legal and operational requirements to access past data”",
+                        explanation: "النسخ الاحتياطي (Backup) مخصص للتعافي من فقدان البيانات في فترات قصيرة. أما الأرشفة (Archive) فهي لحفظ البيانات لفترات طويلة جداً (أشهر أو سنوات) لأغراض قانونية أو تشغيلية."
+                    },
+                    {
+                        type: "Question 2 (True/False)",
+                        text: "True or False: There may be legal or operational requirements for the retention of data through archiving.",
+                        options: [],
+                        answer: "Answer: True.",
+                        quote: "Slide 29:\n“May be legal or operational requirements for the retention of data”",
+                        explanation: "نعم، قد تفرض القوانين أو سياسات العمل الاحتفاظ ببعض البيانات لعدة سنوات، وهو ما يتم عن طريق الأرشفة."
+                    },
+                    {
+                        type: "Question 3 (Short Answer)",
+                        text: "Name one trade-off consideration when deciding whether backups are stored locally or transported to a remote site.",
+                        options: [],
+                        answer: "Answer: Trade-offs include ease of implementation and cost versus greater security and robustness against different threats.",
+                        quote: "Slide 29:\n“Trade-offs include ease of implementation and cost versus greater security and robustness against different threats”",
+                        explanation: "عند حفظ النسخ الاحتياطية، تتم الموازنة بين سهولة التنفيذ وانخفاض التكلفة (محلياً) وبين الأمان العالي ومقاومة الكوارث (عن بعد)."
+                    }
+                ]
+            }
+        ];
+
+        // Init Data into DOM
+        document.addEventListener('DOMContentLoaded', () => {
+            // Render Topics Table
+            const tbody = document.getElementById('topics-tbody');
+            topicsList.forEach(item => {
+                const parts = item.split(',');
+                const id = parts[0];
+                const title = parts.slice(1).join(','); // in case of commas in title
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${id}</td><td>${title}</td>`;
+                tbody.appendChild(tr);
+            });
+
+            // Render Questions
+            const qContainer = document.getElementById('questions-container');
+            quizData.forEach((section, sIndex) => {
+                const topicHtml = `<h2 class="topic-header">${section.topic}</h2>`;
+                qContainer.insertAdjacentHTML('beforeend', topicHtml);
+
+                section.questions.forEach((q, qIndex) => {
+                    const blockId = `q-${sIndex}-${qIndex}`;
+                    let optionsHtml = '';
+                    if (q.options && q.options.length > 0) {
+                        optionsHtml = `<ul class="options-list">`;
+                        q.options.forEach(opt => {
+                            optionsHtml += `<li>${opt}</li>`;
+                        });
+                        optionsHtml += `</ul>`;
+                    }
+
+                    // Store stringified data for onclick inline JS
+                    const encodedQuote = encodeURIComponent(q.quote);
+                    const encodedExplanation = encodeURIComponent(q.explanation);
+
+                    const qHtml = `
+                        <div class="question-block">
+                            <div class="question-text">${q.type}<br>${q.text}</div>
+                            ${optionsHtml}
+                            
+                            <div class="actions">
+                                <button class="btn btn-check" onclick="toggleAnswer('${blockId}')">تحقق</button>
+                                <button class="btn btn-ref" onclick="openModal('${encodedQuote}', '${encodedExplanation}')">المرجع</button>
+                            </div>
+
+                            <div id="${blockId}-ans" class="answer-block">
+                                ${q.answer}
+                            </div>
+                        </div>
+                    `;
+                    qContainer.insertAdjacentHTML('beforeend', qHtml);
+                });
+            });
+        });
+
+        // Tab Switching Logic
+        function switchTab(tabId, btnElement) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            btnElement.classList.add('active');
+        }
+
+        // Toggle Answer Visibility
+        function toggleAnswer(blockId) {
+            const ansDiv = document.getElementById(`${blockId}-ans`);
+            if (ansDiv.style.display === 'block') {
+                ansDiv.style.display = 'none';
+            } else {
+                ansDiv.style.display = 'block';
+            }
+        }
+
+        // Modal Logic
+        const modal = document.getElementById('ref-modal');
+        const quoteEl = document.getElementById('modal-quote');
+        const expEl = document.getElementById('modal-explanation');
+
+        function openModal(encQuote, encExp) {
+            const quote = decodeURIComponent(encQuote);
+            const explanation = decodeURIComponent(encExp);
+            
+            // Format Quote with italics
+            quoteEl.innerHTML = `"${quote.replace(/\n/g, '<br>')}"`;
+            
+            // Add Arabic Explanation
+            expEl.innerHTML = `<strong>الشرح المبسط:</strong> ${explanation}`;
+            
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
